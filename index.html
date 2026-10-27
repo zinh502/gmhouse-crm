@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>GM-House CRM Pro v4.0 · Quản Lý Khách Hàng & Phân Quyền Admin</title>
+<title>GM-House CRM Pro v4.2 · Quản Lý Khách Hàng & Phân Quyền Admin</title>
 <style>
   :root {
     --primary: #1d4ed8;
@@ -820,9 +820,9 @@
 <!-- ==================== 1. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ ==================== -->
 <div class="auth-screen" id="auth-screen">
   <div class="auth-container">
-    <div class="brand-pill">⚡ GM-HOUSE CRM PRO v4.0 · RBAC</div>
+    <div class="brand-pill">⚡ GM-HOUSE CRM PRO v4.2 · RBAC</div>
     <h1 class="auth-title" id="auth-title">Đăng nhập hệ thống</h1>
-    <p class="auth-subtitle">Mỗi thành viên có bảng theo dõi khách hàng cá nhân bảo mật. Admin có thêm Trung tâm Quản trị toàn Team.</p>
+    <p class="auth-subtitle">Thành viên quản lý khách hàng cá nhân. Admin có quyền quản trị tài khoản và theo dõi dữ liệu toàn nhóm.</p>
 
     <div class="auth-tabs">
       <button class="auth-tab active" id="tab-btn-login" onclick="switchAuthMode('login')">Đăng nhập</button>
@@ -846,28 +846,8 @@
       <input type="password" id="inp-pass" placeholder="Tối thiểu 6 ký tự" onkeydown="if(event.key==='Enter') submitAuth()">
     </div>
 
-    <div class="form-group" id="group-admin-code" style="display:none">
-      <label>Mã bảo mật Admin (Chỉ nhập nếu bạn là Admin)</label>
-      <input type="password" id="inp-admin-code" placeholder="Để trống nếu là Thành viên (Mã mặc định: GMHOUSE2026)">
-    </div>
-
     <button class="btn-primary-full" id="btn-auth-action" onclick="submitAuth()">Đăng nhập vào Hệ thống</button>
 
-    <div class="quick-demo-box">
-      <div class="quick-demo-title">Đăng nhập nhanh 1 chạm (Trải nghiệm phân quyền)</div>
-      <div class="demo-grid">
-        <button class="btn-demo btn-demo-admin" onclick="quickLoginRole('admin')">
-          👑 Vào quyền ADMIN
-        </button>
-        <button class="btn-demo btn-demo-member" onclick="quickLoginRole('member')">
-          👤 Vào quyền THÀNH VIÊN
-        </button>
-      </div>
-      <div id="saved-members-wrap" style="display:none; margin-top:10px">
-        <div class="quick-demo-title">Tài khoản đã tạo trên trình duyệt này:</div>
-        <div class="member-chips" id="member-chips"></div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -878,7 +858,7 @@
       <div>
         <div class="hdr-eyebrow">
           <span>GM-HOUSE REAL ESTATE</span>
-          <span class="engine-badge" id="engine-status">⚡ GMHouseDB v4.0</span>
+          <span class="engine-badge" id="engine-status">⚡ GMHouseDB v4.2</span>
         </div>
         <div class="hdr-title" id="hdr-main-title">Bảng Theo Dõi Khách Hàng Cá Nhân</div>
         <div class="user-meta">
@@ -1204,7 +1184,7 @@
       </div>
       <div class="field">
         <label>Email đăng nhập <span class="req">*</span></label>
-        <input type="email" id="au-email" placeholder="phat@gmhouse.vn">
+        <input type="email" id="au-email" placeholder="thanhvien@gmhouse.vn">
       </div>
       <div class="field">
         <label id="au-pass-label">Mật khẩu khởi tạo <span class="req">*</span></label>
@@ -1286,7 +1266,7 @@
   <button class="btn-undo" id="btn-toast-undo" style="display:none" onclick="handleUndo()">Hoàn tác</button>
 </div>
 
-<!-- ==================== 7. NHÚNG THƯ VIỆN GMHouseDB v4.0 & LOGIC ỨNG DỤNG ==================== -->
+<!-- ==================== 7. NHÚNG THƯ VIỆN GMHouseDB v4.2 & LOGIC ỨNG DỤNG ==================== -->
 <script src="./gmhouse-db.js"></script>
 <script>
 
@@ -1360,7 +1340,6 @@ function switchAuthMode(mode) {
   document.getElementById('tab-btn-login').classList.toggle('active', mode === 'login');
   document.getElementById('tab-btn-register').classList.toggle('active', mode === 'register');
   document.getElementById('group-name').style.display = mode === 'register' ? 'block' : 'none';
-  document.getElementById('group-admin-code').style.display = mode === 'register' ? 'block' : 'none';
   document.getElementById('auth-title').textContent = mode === 'login' ? 'Đăng nhập hệ thống' : 'Tạo tài khoản mới';
   document.getElementById('btn-auth-action').textContent = mode === 'login' ? 'Đăng nhập vào Hệ thống' : 'Đăng ký & Bắt đầu sử dụng';
   document.getElementById('auth-alert').style.display = 'none';
@@ -1372,11 +1351,10 @@ async function submitAuth() {
   const name = document.getElementById('inp-name').value;
   const email = document.getElementById('inp-email').value;
   const password = document.getElementById('inp-pass').value;
-  const adminCode = document.getElementById('inp-admin-code').value;
 
   try {
     if (uiState.authMode === 'register') {
-      await db.register({ name, email, password, adminCode });
+      await db.register({ name, email, password });
       showToast('🎉 Tạo tài khoản thành công!');
     } else {
       await db.login({ email, password });
@@ -1388,55 +1366,6 @@ async function submitAuth() {
     alertBox.textContent = err.message || 'Lỗi xác thực';
     alertBox.style.display = 'block';
   }
-}
-
-async function quickLoginRole(role) {
-  if (role === 'admin') {
-    await db.login({ email: 'admin@gmhouse.vn', password: 'admin123' });
-    // Đảm bảo có sẵn ít nhất 1 thành viên mẫu & khách hàng mẫu để Admin thấy ngay tính năng
-    const members = db.listAllRegisteredMembers();
-    if (members.length <= 1) {
-      const m1 = await db.adminCreateUser({ name: 'Hà Khải Phát (Sale)', email: 'phat@gmhouse.vn', password: '123456', role: 'member' });
-      const m2 = await db.adminCreateUser({ name: 'Nguyễn Gia Huy (Sale)', email: 'huy@gmhouse.vn', password: '123456', role: 'member' });
-      await db.seedSampleData(m1.uid);
-      await db.seedSampleData(db.getSafeUser().uid);
-    }
-    uiState.workspace = 'admin';
-    showToast('👑 Đã đăng nhập quyền ADMIN (Vinh James)!');
-  } else {
-    const memberEmail = 'phat@gmhouse.vn';
-    try {
-      await db.login({ email: memberEmail, password: '123456' });
-    } catch {
-      await db.register({ name: 'Hà Khải Phát (Sale)', email: memberEmail, password: '123456' });
-      await db.seedSampleData();
-    }
-    uiState.workspace = 'personal';
-    showToast('👤 Đã đăng nhập quyền THÀNH VIÊN (Chỉ xem được khách cá nhân)!');
-  }
-  syncAuthScreen();
-}
-
-function renderSavedMemberChips() {
-  const members = db.listAllRegisteredMembers();
-  const wrap = document.getElementById('saved-members-wrap');
-  const chips = document.getElementById('member-chips');
-  if (members.length === 0) {
-    wrap.style.display = 'none';
-    return;
-  }
-  wrap.style.display = 'block';
-  chips.innerHTML = members.map(m => {
-    const icon = m.role === 'admin' ? '👑' : '👤';
-    return `<button class="member-chip" onclick="fillMemberEmail('${escHTML(m.email)}')">${icon} ${escHTML(m.name)} (${escHTML(m.email)})</button>`;
-  }).join('');
-}
-
-function fillMemberEmail(email) {
-  switchAuthMode('login');
-  document.getElementById('inp-email').value = email;
-  document.getElementById('inp-pass').value = (email === 'admin@gmhouse.vn') ? 'admin123' : '';
-  document.getElementById('inp-pass').focus();
 }
 
 async function doLogout() {
@@ -1482,7 +1411,6 @@ function syncAuthScreen() {
   if (!user) {
     document.getElementById('app-screen').style.display = 'none';
     document.getElementById('auth-screen').style.display = 'flex';
-    renderSavedMemberChips();
     return;
   }
 
@@ -1642,7 +1570,7 @@ function renderAdminUsersTable() {
       <td style="color:#16a34a;font-weight:800">${m.da_chot} (${m.conversionRate}%)</td>
       <td style="white-space:nowrap">
         <button class="act-btn act-edit" onclick="jumpToMemberCustomers('${escHTML(m.uid)}')" title="Xem danh sách khách hàng của thành viên này">👁️ Xem KH</button>
-        <button class="act-btn act-edit" onclick="openAdminUserModal('${escHTML(m.uid)}')" title="Sửa tên, quyền hoặc đặt lại mật khẩu">✏️ Sửa / Đổi MK</button>
+        <button class="act-btn act-edit" onclick="openAdminUserModal('${escHTML(m.uid)}')" title="Sửa tên, email, quyền, trạng thái hoặc mật khẩu">✏️ Sửa / Đổi MK</button>
         ${m.uid !== db.getSafeUser().uid ? `<button class="act-btn act-del" onclick="handleAdminDeleteUser('${escHTML(m.uid)}', '${escHTML(m.name)}')">🗑️ Xóa</button>` : ''}
       </td>
     </tr>`;
@@ -1666,10 +1594,10 @@ function openAdminUserModal(targetUid = null) {
     : '➕ Tạo tài khoản thành viên mới';
   document.getElementById('au-name').value = user ? user.name : '';
   document.getElementById('au-email').value = user ? user.email : '';
-  document.getElementById('au-email').disabled = Boolean(user);
+  document.getElementById('au-email').disabled = false;
   document.getElementById('au-pass').value = '';
   document.getElementById('au-pass-label').innerHTML = user
-    ? 'Đặt lại mật khẩu mới (Để trống nếu giữ nguyên)'
+    ? 'Mật khẩu mới (bắt buộc nếu đổi email; để trống nếu giữ nguyên)'
     : 'Mật khẩu khởi tạo <span class="req">*</span>';
   document.getElementById('au-role').value = user ? user.role : 'member';
   document.getElementById('au-active-wrap').style.display = user ? 'block' : 'none';
@@ -1696,10 +1624,7 @@ async function saveAdminUserForm() {
 
   try {
     if (uiState.editingUserUid) {
-      await db.adminUpdateUser(uiState.editingUserUid, { name, role, active });
-      if (pass && pass.trim().length > 0) {
-        await db.adminResetUserPassword(uiState.editingUserUid, pass);
-      }
+      await db.adminUpdateUser(uiState.editingUserUid, { name, email, role, active, newPassword: pass });
       showToast('✅ Đã cập nhật tài khoản thành viên!');
     } else {
       await db.adminCreateUser({ name, email, password: pass, role });

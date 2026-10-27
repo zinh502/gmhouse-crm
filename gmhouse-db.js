@@ -1,8 +1,8 @@
 /**
  * ============================================================================
- * GMHouseDB v4.0 — Thư viện Quản lý Dữ liệu, Phân quyền RBAC (Admin/Member) & Bảo mật
+ * GMHouseDB v4.2 — Thư viện Quản lý Dữ liệu, Phân quyền RBAC (Admin/Member) & Bảo mật
  * Kiến trúc: Multi-Tenant In-Memory Cache (O(1)) + IndexedDB + LocalStorage Mirror
- * Tính năng mới v4.0:
+ * Tính năng mới v4.2:
  *  - Đổi mật khẩu người dùng (Xác thực mật khẩu cũ + SHA-256 Hash)
  *  - Phân quyền RBAC: Admin (Toàn quyền hệ thống + Không gian cá nhân riêng) & Member (Cô lập dữ liệu 100%)
  *  - Admin User CRUD: Tạo user, Sửa tên/quyền, Đặt lại mật khẩu, Khóa/Mở khóa, Xóa user & Chuyển giao khách
@@ -14,7 +14,6 @@ class GMHouseDataEngine {
   constructor(options = {}) {
     this.dbName = options.dbName || 'GMHouse_Enterprise_DB_v4';
     this.dbVersion = options.dbVersion || 2;
-    this.ADMIN_SECRET_CODE = options.adminSecretCode || 'GMHOUSE2026';
 
     // Bộ nhớ đệm O(1) chứa toàn bộ bản ghi trên thiết bị (Được bảo vệ bởi tầng kiểm soát quyền RBAC)
     this.allRecordsMap = new Map();
@@ -51,6 +50,7 @@ class GMHouseDataEngine {
     await this._loadAllUsers();
     await this._ensureDefaultAdminExists();
     await this._loadAllCustomersIntoCache();
+    await this._migrateLegacyAdminCustomers();
     await this._restoreSession();
     return this;
   }
@@ -92,32 +92,99 @@ class GMHouseDataEngine {
   }
 
   async _ensureDefaultAdminExists() {
-    // Đảm bảo luôn có sẵn 1 tài khoản Admin mặc định để chủ hệ thống đăng nhập quản trị
-    const adminEmail = 'admin@gmhouse.vn';
-    let foundAdmin = null;
-    for (const u of this.usersMap.values()) {
-      if (u.email === adminEmail) {
-        foundAdmin = u;
-        break;
-      }
+    // Tạo tài khoản quản trị chính một lần. Ghi nhớ UID để việc đổi email/tên
+    // không khiến ứng dụng vô tình tạo lại tài khoản mặc định ở lần mở sau.
+    const adminEmail = 'tien1207@gmail.com';
+    const seedMarker = 'gmhouse_primary_admin_seeded_v1';
+    const adminUidKey = 'gmhouse_primary_admin_uid_v1';
+    const firstSetup = localStorage.getItem(seedMarker) !== '1';
+    const storedAdminUid = localStorage.getItem(adminUidKey);
+    let rootAdmin = storedAdminUid ? this.usersMap.get(storedAdminUid) : null;
+
+    if (!rootAdmin) {
+      rootAdmin = Array.from(this.usersMap.values()).find(
+        u => (u.email || '').trim().toLowerCase() === adminEmail
+      );
     }
-    if (!foundAdmin) {
-      const passwordHash = await this.hashPassword('admin123', adminEmail);
-      const rootAdmin = {
-        uid: 'usr_root_admin',
+
+    if (!rootAdmin) {
+      let uid = 'usr_admin_tien';
+      if (this.usersMap.has(uid)) uid += '_' + Date.now().toString(36);
+      rootAdmin = {
+        uid,
         email: adminEmail,
-        name: 'Vinh James (Admin)',
+        name: 'Đào Thị Hồng Tiên',
         role: 'admin',
         active: true,
-        passwordHash,
+        passwordHash: await this.hashPassword('Tien1207', adminEmail),
         createdAt: new Date().toISOString()
       };
       this.usersMap.set(rootAdmin.uid, rootAdmin);
-      await this._persistUsers();
+    } else {
+      // Chỉ đặt thông tin mặc định lúc nâng cấp lần đầu, không ghi đè các thay đổi sau đó.
+      if (firstSetup) {
+        rootAdmin.email = adminEmail;
+        rootAdmin.name = 'Đào Thị Hồng Tiên';
+        rootAdmin.role = 'admin';
+        rootAdmin.active = true;
+      }
+      if (firstSetup || !rootAdmin.passwordHash) {
+        rootAdmin.passwordHash = await this.hashPassword('Tien1207', rootAdmin.email || adminEmail);
+      }
+      rootAdmin.updatedAt = new Date().toISOString();
+      this.usersMap.set(rootAdmin.uid, rootAdmin);
     }
+
+    // Vô hiệu hóa tài khoản demo cũ admin@gmhouse.vn / admin123 để tránh đăng nhập bằng mật khẩu mẫu.
+    // Khách hàng thuộc tài khoản cũ sẽ được chuyển sang Admin mới sau khi nạp dữ liệu.
+    for (const user of this.usersMap.values()) {
+      if ((user.email || '').trim().toLowerCase() === 'admin@gmhouse.vn') {
+        user.role = 'member';
+        user.active = false;
+        user.updatedAt = new Date().toISOString();
+        this.usersMap.set(user.uid, user);
+      }
+    }
+
+    await this._persistUsers();
+    localStorage.setItem(adminUidKey, rootAdmin.uid);
+    localStorage.setItem(seedMarker, '1');
   }
 
-  async register({ name, email, password, adminCode = '' }) {
+  async _migrateLegacyAdminCustomers() {
+    const storedAdminUid = localStorage.getItem('gmhouse_primary_admin_uid_v1');
+    const admin = (storedAdminUid ? this.usersMap.get(storedAdminUid) : null) ||
+      Array.from(this.usersMap.values()).find(
+        u => (u.email || '').trim().toLowerCase() === 'tien1207@gmail.com' && u.role === 'admin'
+      );
+    if (!admin) return;
+
+    const legacyAdminUids = new Set(
+      Array.from(this.usersMap.values())
+        .filter(u => u.uid !== admin.uid && (
+          u.uid === 'usr_root_admin' ||
+          (u.email || '').trim().toLowerCase() === 'admin@gmhouse.vn'
+        ))
+        .map(u => u.uid)
+    );
+
+    let changed = false;
+    for (const [recordId, record] of this.allRecordsMap.entries()) {
+      if (!legacyAdminUids.has(record.ownerUid)) continue;
+      const migrated = this._normalizeRecord({
+        ...record,
+        ownerUid: admin.uid,
+        ownerName: admin.name,
+        ownerEmail: admin.email
+      }, admin.uid);
+      this.allRecordsMap.set(recordId, migrated);
+      changed = true;
+    }
+
+    if (changed) await this._persistAllCustomers();
+  }
+
+  async register({ name, email, password }) {
     const cleanEmail = (email || '').trim().toLowerCase();
     if (!cleanEmail || !password) throw new Error('Vui lòng nhập đầy đủ Email và Mật khẩu.');
     if (password.length < 6) throw new Error('Mật khẩu phải có tối thiểu 6 ký tự.');
@@ -128,14 +195,7 @@ class GMHouseDataEngine {
       }
     }
 
-    let role = 'member';
-    if (adminCode && adminCode.trim() !== '') {
-      if (adminCode.trim() === this.ADMIN_SECRET_CODE) {
-        role = 'admin';
-      } else {
-        throw new Error('Mã bảo mật Admin không chính xác (Để trống nếu tạo tài khoản Thành viên).');
-      }
-    }
+    const role = 'member';
 
     const passwordHash = await this.hashPassword(password, cleanEmail);
     const user = {
@@ -259,28 +319,61 @@ class GMHouseDataEngine {
     return this.getSafeUser(newUser);
   }
 
-  async adminUpdateUser(targetUid, { name, email, role, active }) {
+  async adminUpdateUser(targetUid, { name, email, role, active, newPassword = '' }) {
     this._requireAdmin();
     const user = this.usersMap.get(targetUid);
     if (!user) throw new Error('Không tìm thấy thành viên này.');
 
-    if (name !== undefined && name.trim()) user.name = name.trim();
+    const cleanEmail = (email === undefined ? user.email : (email || '')).trim().toLowerCase();
+    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      throw new Error('Vui lòng nhập email hợp lệ.');
+    }
+    const emailChanged = cleanEmail !== (user.email || '').trim().toLowerCase();
+    for (const other of this.usersMap.values()) {
+      if (other.uid !== targetUid && (other.email || '').trim().toLowerCase() === cleanEmail) {
+        throw new Error('Email này đã được một tài khoản khác sử dụng.');
+      }
+    }
+
+    if (emailChanged && !newPassword) {
+      throw new Error('Khi đổi email đăng nhập, Admin cần đặt mật khẩu mới để tài khoản có thể đăng nhập bằng email mới.');
+    }
+    if (newPassword && newPassword.length < 6) {
+      throw new Error('Mật khẩu mới phải có tối thiểu 6 ký tự.');
+    }
+
     if (role !== undefined && (role === 'admin' || role === 'member')) {
-      // Không cho phép tự hạ quyền của chính mình nếu là admin duy nhất
       if (targetUid === this.currentUser.uid && role !== 'admin') {
         throw new Error('Bạn không thể tự thu hồi quyền Admin của chính mình.');
       }
+      if (user.role === 'admin' && role !== 'admin') {
+        const hasOtherActiveAdmin = Array.from(this.usersMap.values()).some(
+          candidate => candidate.uid !== targetUid && candidate.role === 'admin' && candidate.active !== false
+        );
+        if (!hasOtherActiveAdmin) throw new Error('Không thể hạ quyền Admin cuối cùng trong hệ thống.');
+      }
       user.role = role;
     }
+
     if (active !== undefined) {
       if (targetUid === this.currentUser.uid && active === false) {
         throw new Error('Bạn không thể tự khóa tài khoản đang đăng nhập.');
       }
+      if (user.role === 'admin' && active === false) {
+        const hasOtherActiveAdmin = Array.from(this.usersMap.values()).some(
+          candidate => candidate.uid !== targetUid && candidate.role === 'admin' && candidate.active !== false
+        );
+        if (!hasOtherActiveAdmin) throw new Error('Không thể khóa Admin đang hoạt động cuối cùng trong hệ thống.');
+      }
       user.active = Boolean(active);
     }
 
+    if (name !== undefined && name.trim()) user.name = name.trim();
+    user.email = cleanEmail;
+    if (newPassword) user.passwordHash = await this.hashPassword(newPassword, cleanEmail);
     user.updatedAt = new Date().toISOString();
     this.usersMap.set(targetUid, user);
+
     if (targetUid === this.currentUser.uid) {
       this.currentUser = user;
       localStorage.setItem('gmhouse_active_session', JSON.stringify(this.getSafeUser()));
@@ -313,6 +406,12 @@ class GMHouseDataEngine {
     }
     const user = this.usersMap.get(targetUid);
     if (!user) throw new Error('Không tìm thấy thành viên.');
+    if (user.role === 'admin') {
+      const hasOtherActiveAdmin = Array.from(this.usersMap.values()).some(
+        candidate => candidate.uid !== targetUid && candidate.role === 'admin' && candidate.active !== false
+      );
+      if (!hasOtherActiveAdmin) throw new Error('Không thể xóa Admin đang hoạt động cuối cùng trong hệ thống.');
+    }
 
     // Xử lý danh sách khách hàng của thành viên bị xóa
     for (const [cid, record] of this.allRecordsMap.entries()) {
@@ -681,7 +780,7 @@ class GMHouseDataEngine {
 
     return JSON.stringify({
       version: 4,
-      app: 'GM-House CRM Pro v4.0',
+      app: 'GM-House CRM Pro v4.2',
       scope: canExportAll ? 'full_team' : 'personal',
       exportedBy: {
         uid: this.currentUser.uid,
@@ -816,7 +915,7 @@ class GMHouseDataEngine {
         const arr = JSON.parse(rawV4);
         arr.forEach(u => {
           const normalizedRole = (u.role === 'admin') ? 'admin' : 'member';
-          this.usersMap.set(u.uid, { ...u, active: u.active !== false, role: normalizedRole });
+          this.usersMap.set(u.uid, { ...u, email: (u.email || '').trim().toLowerCase(), active: u.active !== false, role: normalizedRole });
         });
       } catch {}
     }
@@ -828,7 +927,7 @@ class GMHouseDataEngine {
         Object.values(obj).forEach(u => {
           if (u && u.uid && !this.usersMap.has(u.uid)) {
             const normalizedRole = (u.role === 'admin') ? 'admin' : 'member';
-            this.usersMap.set(u.uid, { ...u, active: true, role: normalizedRole });
+            this.usersMap.set(u.uid, { ...u, email: (u.email || '').trim().toLowerCase(), active: u.active !== false, role: normalizedRole });
           }
         });
       } catch {}

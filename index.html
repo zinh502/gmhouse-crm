@@ -1,0 +1,2205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>GM-House CRM Pro v4.0 · Quản Lý Khách Hàng & Phân Quyền Admin</title>
+<style>
+  :root {
+    --primary: #1d4ed8;
+    --primary-dark: #1e3a5f;
+    --admin-accent: #b45309;
+    --admin-gradient: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+    --personal-gradient: linear-gradient(135deg, #0f172a 0%, #1e3a5f 55%, #1d4ed8 100%);
+    --bg: #f1f5f9;
+    --surface: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --shadow-sm: 0 1px 3px rgba(15,23,42,.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding-bottom: 52px;
+    -webkit-font-smoothing: antialiased;
+  }
+  input, select, textarea, button { font-family: inherit; font-size: 15px; }
+  select { -webkit-appearance: none; appearance: none; }
+
+  /* ── 1. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ ── */
+  .auth-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: radial-gradient(circle at top left, #1e3a8a 0%, #0f172a 60%, #020617 100%);
+  }
+  .auth-container {
+    width: 100%;
+    max-width: 460px;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 22px;
+    padding: 30px 26px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+  }
+  .brand-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #dbeafe;
+    color: #1e40af;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 5px 12px;
+    border-radius: 99px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .auth-title { font-size: 23px; font-weight: 900; color: #0f172a; line-height: 1.25; }
+  .auth-subtitle { font-size: 13px; color: #64748b; margin: 5px 0 18px; line-height: 1.5; }
+  .auth-tabs {
+    display: flex;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  .auth-tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 9px;
+    border-radius: 9px;
+    font-weight: 800;
+    font-size: 14px;
+    color: #64748b;
+    cursor: pointer;
+  }
+  .auth-tab.active {
+    background: #fff;
+    color: var(--primary);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+  .auth-alert {
+    display: none;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 10px 13px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .form-group { margin-bottom: 13px; }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 5px;
+  }
+  .form-group input, .form-group select {
+    width: 100%;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 11px;
+    padding: 10px 13px;
+    font-size: 15px;
+    color: #0f172a;
+    background: #f8fafc;
+    outline: none;
+  }
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--primary);
+    background: #fff;
+  }
+  .btn-primary-full {
+    width: 100%;
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 13px;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
+  }
+  .quick-demo-box {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed #cbd5e1;
+  }
+  .quick-demo-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .btn-demo {
+    width: 100%;
+    border-radius: 10px;
+    padding: 9px 10px;
+    font-weight: 800;
+    font-size: 12.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+  .btn-demo-admin {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1.5px solid #fcd34d;
+  }
+  .btn-demo-member {
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1.5px solid #86efac;
+  }
+  .member-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .member-chip {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ── 2. HEADER & CHUYỂN ĐỔI KHÔNG GIAN (CÁ NHÂN vs ADMIN) ── */
+  .hdr {
+    background: var(--personal-gradient);
+    padding: 15px 16px 18px;
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.16);
+    transition: background 0.25s ease;
+  }
+  .hdr.admin-mode {
+    background: var(--admin-gradient);
+  }
+  .hdr-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .hdr-eyebrow {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: #93c5fd;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .engine-badge {
+    background: rgba(34, 197, 94, 0.22);
+    color: #bbf7d0;
+    border: 1px solid rgba(134, 239, 172, 0.35);
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 10px;
+  }
+  .hdr-title { font-size: 20px; font-weight: 900; color: #fff; margin-top: 2px; }
+  .user-meta {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 7px;
+    flex-wrap: wrap;
+  }
+  .user-badge {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 4px 11px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .role-pill-admin {
+    background: #f59e0b;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 2px 7px;
+    border-radius: 99px;
+    text-transform: uppercase;
+  }
+  .role-pill-member {
+    background: #38bdf8;
+    color: #0f172a;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 2px 7px;
+    border-radius: 99px;
+    text-transform: uppercase;
+  }
+  .btn-pill-header {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-pill-header:hover { background: rgba(255, 255, 255, 0.25); }
+  .btn-logout {
+    background: rgba(239, 68, 68, 0.24);
+    color: #fecaca;
+    border: 1px solid rgba(252, 165, 165, 0.35);
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* Thanh chuyển đổi giữa Không gian Cá nhân & Trang Admin */
+  .workspace-switcher {
+    display: inline-flex;
+    background: rgba(15, 23, 42, 0.38);
+    padding: 4px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    gap: 4px;
+  }
+  .ws-btn {
+    border: none;
+    background: transparent;
+    color: #cbd5e1;
+    padding: 8px 13px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ws-btn.active {
+    background: #fff;
+    color: #0f172a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .ws-btn.active-admin {
+    background: #fbbf24;
+    color: #1e1b4b;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+
+  .hdr-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .btn-hdr-secondary {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    border: 1.5px solid rgba(255, 255, 255, 0.32);
+    border-radius: 11px;
+    padding: 9px 13px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .btn-add {
+    background: #fff;
+    color: #1e3a5f;
+    border: none;
+    border-radius: 11px;
+    padding: 9px 16px;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  }
+
+  /* ── 3. KHUNG NỘI DUNG CHUNG ── */
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 14px 12px 0; }
+
+  /* Banner & Sub-tabs dành riêng cho Trang Admin */
+  .admin-banner {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border: 1.5px solid #fde68a;
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .admin-subtabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .admin-subtab {
+    border: 1.5px solid #cbd5e1;
+    background: #fff;
+    color: #334155;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .admin-subtab.active {
+    background: #312e81;
+    color: #fff;
+    border-color: #312e81;
+  }
+  .btn-print-csv {
+    background: #15803d;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(21,128,61,0.25);
+  }
+  .btn-print-csv:hover { background: #166534; }
+
+  /* Bảng hiệu suất từng thành viên trên trang Admin */
+  .perf-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid #e2e8f0;
+  }
+  .perf-hdr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .perf-title { font-size: 13px; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 0.04em; }
+  .perf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 10px;
+  }
+  .member-stat-box {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 11px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .member-stat-box:hover, .member-stat-box.selected {
+    border-color: #4338ca;
+    background: #eef2ff;
+  }
+  .ms-name { font-size: 13.5px; font-weight: 800; color: #0f172a; display: flex; justify-content: space-between; align-items: center; }
+  .ms-email { font-size: 11px; color: #64748b; margin-bottom: 6px; }
+  .ms-metrics { display: flex; gap: 8px; font-size: 11.5px; font-weight: 800; flex-wrap: wrap; }
+
+  /* Thanh lọc chính */
+  .toolbar {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .tabs { display: flex; gap: 2px; background: #f1f5f9; border-radius: 10px; padding: 3px; flex-wrap: wrap; }
+  .tab {
+    padding: 7px 12px;
+    border-radius: 7px;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    background: transparent;
+    color: #64748b;
+  }
+  .tab.active { background: var(--primary); color: #fff; }
+  .layout-switch { display: flex; background: #f1f5f9; border-radius: 10px; padding: 3px; gap: 2px; }
+  .layout-btn {
+    border: none;
+    background: transparent;
+    padding: 7px 11px;
+    border-radius: 7px;
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #64748b;
+    cursor: pointer;
+  }
+  .layout-btn.active { background: #0f172a; color: #fff; }
+  .filter-row { width: 100%; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .finp {
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    padding: 8px 11px;
+    font-size: 13.5px;
+    color: var(--text-main);
+    outline: none;
+    background: #f8fafc;
+  }
+  .finp:focus { border-color: #93c5fd; background: #fff; }
+  .finp-sel {
+    padding-right: 28px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  .finp-member-admin {
+    border-color: #818cf8;
+    background-color: #eef2ff;
+    color: #312e81;
+    font-weight: 800;
+  }
+  .finp-search { flex: 1 1 200px; min-width: 160px; }
+
+  /* ── 4. KPI STATS STRIP ── */
+  .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .stat-main {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 12px 16px;
+    flex: 2 1 190px;
+    border-left: 4px solid var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+  }
+  .stat-num-big { font-size: 28px; font-weight: 900; color: var(--primary); line-height: 1; }
+  .stat-label { font-size: 10px; color: #94a3b8; font-weight: 800; text-transform: uppercase; }
+  .stat-period { font-size: 12px; font-weight: 700; color: #475569; margin-top: 2px; }
+  .stat-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 10px 12px;
+    flex: 1 1 85px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+  }
+  .stat-card-label { font-size: 10px; color: #64748b; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
+  .stat-card-num { font-size: 22px; font-weight: 900; line-height: 1.15; margin-top: 2px; }
+
+  /* ── 5. TABLE VIEW ── */
+  .tbl-wrap {
+    background: var(--surface);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .tbl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: #f8fafc; border-bottom: 2px solid var(--border); }
+  th {
+    padding: 11px 12px;
+    text-align: left;
+    font-weight: 800;
+    color: #475569;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+  td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  .tr-even { background: #fff; }
+  .tr-odd { background: #fafbfc; }
+  tr:hover td { background: #eff6ff !important; }
+  .cell-name { font-weight: 800; color: #0f172a; white-space: nowrap; }
+  .cell-sub { font-size: 11.5px; color: #0284c7; font-weight: 700; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+  .cell-sub a { color: #0284c7; text-decoration: none; background: #e0f2fe; padding: 1px 6px; border-radius: 5px; }
+  .cell-grey { color: #475569; white-space: nowrap; font-size: 12.5px; }
+  .tag-src {
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+    display: inline-block;
+  }
+  .tag-owner {
+    background: #eef2ff;
+    color: #3730a3;
+    border: 1px solid #c7d2fe;
+    padding: 3px 8px;
+    border-radius: 99px;
+    font-size: 11.5px;
+    font-weight: 800;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .badge-area {
+    background: #f1f5f9;
+    color: #334155;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .empty-row td { padding: 48px 20px; text-align: center; color: #94a3b8; font-size: 14px; }
+  .badge-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .status-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border-radius: 8px;
+    border-width: 1.5px;
+    border-style: solid;
+  }
+  .status-sel {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 800;
+    outline: none;
+    color: inherit;
+  }
+  .note-cell {
+    min-width: 150px;
+    max-width: 240px;
+    font-size: 12.5px;
+    cursor: text;
+    padding: 4px 7px;
+    border-radius: 6px;
+    border: 1.5px dashed transparent;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.45;
+    color: #334155;
+  }
+  .note-cell.empty { color: #cbd5e1; font-style: italic; font-size: 12px; }
+  .note-cell:hover { border-color: #94a3b8; background: #fff; }
+  .note-ta {
+    width: 100%;
+    min-width: 160px;
+    font-size: 12.5px;
+    border: 1.5px solid #2563eb;
+    border-radius: 7px;
+    padding: 5px 8px;
+    resize: vertical;
+    outline: none;
+    background: #fff;
+  }
+  .act-btn {
+    border: none;
+    border-radius: 7px;
+    padding: 6px 9px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .act-edit { background: #eff6ff; color: #1d4ed8; margin-right: 4px; }
+  .act-del { background: #fef2f2; color: #ef4444; }
+
+  /* ── 6. KANBAN PIPELINE VIEW ── */
+  .kanban-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+  .kanban-col {
+    background: #e2e8f0;
+    border-radius: 14px;
+    padding: 10px;
+    min-height: 320px;
+  }
+  .kanban-col-hdr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px 10px;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+  .kanban-count {
+    background: rgba(15,23,42,0.1);
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 11px;
+  }
+  .kanban-card {
+    background: #fff;
+    border-radius: 11px;
+    padding: 12px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 5px rgba(15,23,42,0.06);
+    border-left: 4px solid transparent;
+  }
+  .k-title { font-weight: 800; font-size: 14px; color: #0f172a; margin-bottom: 4px; display: flex; justify-content: space-between; gap: 6px; }
+  .k-meta { font-size: 11.5px; color: #64748b; margin-bottom: 6px; display: flex; flex-wrap: wrap; gap: 5px; }
+  .k-note { font-size: 12px; color: #334155; background: #f8fafc; padding: 6px 8px; border-radius: 7px; margin-bottom: 8px; white-space: pre-wrap; }
+  .k-footer { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+
+  /* ── 7. MODALS & TOAST ── */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.62);
+    z-index: 1000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+  }
+  .sheet {
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 600px;
+    max-height: 92vh;
+    overflow-y: auto;
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.22);
+  }
+  .drag-handle { display: flex; justify-content: center; padding: 10px 0 4px; }
+  .drag-bar { width: 42px; height: 4px; border-radius: 99px; background: #cbd5e1; }
+  .sheet-hdr { padding: 10px 20px 10px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+  .sheet-title { font-size: 17px; font-weight: 900; color: #0f172a; }
+  .form-grid { padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-grid .span2 { grid-column: span 2; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 5px;
+  }
+  .field label .req { color: #ef4444; }
+  .field input, .field select, .field textarea {
+    border: 1.5px solid #cbd5e1;
+    border-radius: 9px;
+    padding: 10px 12px;
+    font-size: 15px;
+    color: #0f172a;
+    outline: none;
+    background: #f8fafc;
+    width: 100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--primary); background: #fff; }
+  .field textarea { resize: vertical; min-height: 76px; line-height: 1.45; }
+  .form-btns { padding: 0 20px 24px; display: flex; gap: 10px; }
+  .btn-cancel {
+    flex: 1;
+    border: 1.5px solid #cbd5e1;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    color: #475569;
+  }
+  .btn-submit {
+    flex: 2;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+    font-weight: 800;
+  }
+  .sync-body { padding: 16px 20px 26px; display: flex; flex-direction: column; gap: 12px; }
+  .sync-box { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px; }
+  .sync-box-title { font-size: 12px; font-weight: 800; color: #334155; text-transform: uppercase; margin-bottom: 6px; }
+  .sync-box-desc { font-size: 13px; color: #64748b; margin-bottom: 10px; line-height: 1.45; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-action {
+    flex: 1;
+    min-width: 140px;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-weight: 800;
+    font-size: 13.5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .toast-bar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0f172a;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 99px;
+    font-size: 13.5px;
+    font-weight: 700;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .toast-bar.show { opacity: 1; pointer-events: auto; }
+  .btn-undo {
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .footer-hint { text-align: center; padding: 12px 0 0; font-size: 12px; color: #64748b; }
+  kbd { background: #e2e8f0; border-radius: 4px; padding: 1px 5px; font-size: 11px; font-weight: 700; color: #334155; }
+  @media (max-width: 860px) { .kanban-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) {
+    .kanban-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid .span2 { grid-column: span 1; }
+    .demo-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== 1. MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ ==================== -->
+<div class="auth-screen" id="auth-screen">
+  <div class="auth-container">
+    <div class="brand-pill">⚡ GM-HOUSE CRM PRO v4.0 · RBAC</div>
+    <h1 class="auth-title" id="auth-title">Đăng nhập hệ thống</h1>
+    <p class="auth-subtitle">Mỗi thành viên có bảng theo dõi khách hàng cá nhân bảo mật. Admin có thêm Trung tâm Quản trị toàn Team.</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-btn-login" onclick="switchAuthMode('login')">Đăng nhập</button>
+      <button class="auth-tab" id="tab-btn-register" onclick="switchAuthMode('register')">Tạo tài khoản</button>
+    </div>
+
+    <div class="auth-alert" id="auth-alert"></div>
+
+    <div class="form-group" id="group-name" style="display:none">
+      <label>Họ tên / Biệt danh trong Team</label>
+      <input type="text" id="inp-name" placeholder="VD: Nguyễn Gia Huy">
+    </div>
+
+    <div class="form-group">
+      <label>Email đăng nhập</label>
+      <input type="email" id="inp-email" placeholder="thanhvien@gmhouse.vn" onkeydown="if(event.key==='Enter') submitAuth()">
+    </div>
+
+    <div class="form-group">
+      <label>Mật khẩu</label>
+      <input type="password" id="inp-pass" placeholder="Tối thiểu 6 ký tự" onkeydown="if(event.key==='Enter') submitAuth()">
+    </div>
+
+    <div class="form-group" id="group-admin-code" style="display:none">
+      <label>Mã bảo mật Admin (Chỉ nhập nếu bạn là Admin)</label>
+      <input type="password" id="inp-admin-code" placeholder="Để trống nếu là Thành viên (Mã mặc định: GMHOUSE2026)">
+    </div>
+
+    <button class="btn-primary-full" id="btn-auth-action" onclick="submitAuth()">Đăng nhập vào Hệ thống</button>
+
+    <div class="quick-demo-box">
+      <div class="quick-demo-title">Đăng nhập nhanh 1 chạm (Trải nghiệm phân quyền)</div>
+      <div class="demo-grid">
+        <button class="btn-demo btn-demo-admin" onclick="quickLoginRole('admin')">
+          👑 Vào quyền ADMIN
+        </button>
+        <button class="btn-demo btn-demo-member" onclick="quickLoginRole('member')">
+          👤 Vào quyền THÀNH VIÊN
+        </button>
+      </div>
+      <div id="saved-members-wrap" style="display:none; margin-top:10px">
+        <div class="quick-demo-title">Tài khoản đã tạo trên trình duyệt này:</div>
+        <div class="member-chips" id="member-chips"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 2. KHÔNG GIAN LÀM VIỆC CHÍNH ==================== -->
+<div id="app-screen" style="display:none">
+  <header class="hdr" id="main-hdr">
+    <div class="hdr-inner">
+      <div>
+        <div class="hdr-eyebrow">
+          <span>GM-HOUSE REAL ESTATE</span>
+          <span class="engine-badge" id="engine-status">⚡ GMHouseDB v4.0</span>
+        </div>
+        <div class="hdr-title" id="hdr-main-title">Bảng Theo Dõi Khách Hàng Cá Nhân</div>
+        <div class="user-meta">
+          <span class="user-badge">
+            <span id="lbl-role-pill" class="role-pill-member">MEMBER</span>
+            <span id="lbl-user-name">Thành viên</span>
+            (<span id="lbl-user-email"></span>)
+          </span>
+          <button class="btn-pill-header" onclick="openChangePasswordModal()">🔑 Đổi mật khẩu</button>
+          <button class="btn-logout" onclick="doLogout()">Đăng xuất</button>
+        </div>
+      </div>
+
+      <!-- Cụm nút chuyển đổi Không gian (Chỉ hiển thị cho tài khoản có quyền ADMIN) -->
+      <div id="admin-workspace-switcher" style="display:none">
+        <div class="workspace-switcher">
+          <button class="ws-btn active" id="ws-btn-personal" onclick="switchWorkspace('personal')">
+            📋 Khách cá nhân của tôi
+          </button>
+          <button class="ws-btn" id="ws-btn-admin" onclick="switchWorkspace('admin')">
+            👑 Trang Quản Trị (Admin)
+          </button>
+        </div>
+      </div>
+
+      <div class="hdr-actions">
+        <button class="btn-hdr-secondary" onclick="seedMoreSamples()" title="Tạo nhanh 5 khách mẫu">✨ +5 Khách mẫu</button>
+        <button class="btn-hdr-secondary" onclick="openSyncModal()">⇅ Sao lưu & Excel</button>
+        <button class="btn-add" onclick="openCustomerModal()">
+          <span style="font-size:18px;line-height:1">+</span> Thêm khách
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- ==================== PHÂN KHU DÀNH RIÊNG CHO TRANG ADMIN ==================== -->
+    <div id="admin-only-top-bar" style="display:none">
+      <div class="admin-banner">
+        <div class="admin-subtabs">
+          <button class="admin-subtab active" id="asub-customers" onclick="switchAdminSubTab('customers')">
+            📊 Giám sát Khách hàng các Thành viên
+          </button>
+          <button class="admin-subtab" id="asub-users" onclick="switchAdminSubTab('users')">
+            👥 Quản lý Tài khoản Thành viên (<span id="admin-user-count">0</span>)
+          </button>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-print-csv" onclick="exportAdminCSV('filtered')" title="Xuất danh sách đang lọc ra file CSV chuẩn in ấn">
+            🖨️ Xuất CSV In Danh Sách (Theo bộ lọc)
+          </button>
+          <button class="btn-print-csv" style="background:#0f172a" onclick="exportAdminCSV('all')" title="Xuất toàn bộ khách hàng của tất cả thành viên">
+            📊 Xuất CSV Toàn Team
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TAB ADMIN 2: QUẢN LÝ TÀI KHOẢN THÀNH VIÊN (FULL CRUD) ==================== -->
+    <div id="admin-users-panel" style="display:none">
+      <div class="perf-card">
+        <div class="perf-hdr">
+          <div>
+            <div class="perf-title">👥 Danh sách Tài khoản Thành viên trong Team</div>
+            <div style="font-size:12.5px;color:#64748b;margin-top:2px">
+              Admin có toàn quyền tạo tài khoản, đổi mật khẩu, nâng/hạ quyền Admin, khóa hoặc xóa thành viên.
+            </div>
+          </div>
+          <button class="btn-add" style="background:#1d4ed8;color:#fff" onclick="openAdminUserModal()">
+            ➕ Tạo tài khoản thành viên mới
+          </button>
+        </div>
+
+        <div class="tbl-wrap" style="border:1px solid #e2e8f0">
+          <div class="tbl-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Thành viên</th>
+                  <th>Email đăng nhập</th>
+                  <th>Phân quyền</th>
+                  <th>Trạng thái</th>
+                  <th>Tổng KH</th>
+                  <th>Đang chăm (UT1+2)</th>
+                  <th>Đã chốt</th>
+                  <th>Thao tác của Admin</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== VÙNG THEO DÕI KHÁCH HÀNG (DÙNG CHO CẢ CÁ NHÂN & ADMIN TEAM) ==================== -->
+    <div id="crm-customers-panel">
+      <!-- Bảng tóm tắt hiệu suất từng thành viên (Chỉ hiện khi ở Trang Admin -> Giám sát Khách hàng) -->
+      <div class="perf-card" id="admin-perf-overview" style="display:none">
+        <div class="perf-hdr">
+          <div class="perf-title">📌 Bấm vào từng thành viên để xem riêng khách hàng của người đó:</div>
+          <button class="member-chip" onclick="selectAdminMemberFilter('all')">🔄 Xem tất cả thành viên</button>
+        </div>
+        <div class="perf-grid" id="admin-perf-grid"></div>
+      </div>
+
+      <!-- Thanh công cụ & Bộ lọc -->
+      <div class="toolbar">
+        <div class="tabs">
+          <button class="tab" onclick="changePeriod('day')"    id="ptab-day">Ngày</button>
+          <button class="tab" onclick="changePeriod('week')"   id="ptab-week">Tuần</button>
+          <button class="tab active" onclick="changePeriod('month')" id="ptab-month">Tháng</button>
+          <button class="tab" onclick="changePeriod('all')"    id="ptab-all">Tất cả</button>
+          <button class="tab" onclick="changePeriod('active')" id="ptab-active" style="color:#d97706">🔥 Đang chăm</button>
+        </div>
+
+        <div class="layout-switch">
+          <button class="layout-btn active" id="lbtn-table" onclick="changeLayout('table')">📋 Bảng</button>
+          <button class="layout-btn" id="lbtn-kanban" onclick="changeLayout('kanban')">🗂️ Kanban</button>
+        </div>
+
+        <div class="filter-row">
+          <!-- Dropdown chọn thành viên (Chỉ hiển thị khi Admin ở Trang Quản Trị) -->
+          <select class="finp finp-sel finp-member-admin" id="flt-admin-member" style="display:none" onchange="refreshUI()">
+            <option value="all">👥 Tất cả thành viên trong Team</option>
+          </select>
+
+          <input type="date" class="finp" id="flt-date" onchange="refreshUI()">
+          <select class="finp finp-sel" id="flt-status" onchange="refreshUI()">
+            <option value="all">Tất cả Tình trạng</option>
+            <option value="uu_tien_1">Ưu tiên 1</option>
+            <option value="uu_tien_2">Ưu tiên 2</option>
+            <option value="da_chot">Đã chốt</option>
+            <option value="rot">Rớt</option>
+          </select>
+          <select class="finp finp-sel" id="flt-nguon" onchange="refreshUI()">
+            <option value="all">Tất cả Nguồn</option>
+          </select>
+          <select class="finp finp-sel" id="flt-khuvuc" onchange="refreshUI()">
+            <option value="all">Tất cả Khu vực</option>
+          </select>
+          <input type="search" class="finp finp-search" id="flt-search" placeholder="🔍 Tìm không dấu: tên KH, SĐT, khu vực, ghi chú... (Nhấn /)" oninput="refreshUI()">
+        </div>
+      </div>
+
+      <!-- Thẻ KPI thống kê -->
+      <div class="stats">
+        <div class="stat-main" onclick="quickFilterStatus('all')">
+          <div>
+            <div class="stat-label" id="st-main-label">Tổng khách trong kỳ</div>
+            <div class="stat-period" id="st-period">—</div>
+          </div>
+          <div style="text-align:right">
+            <div class="stat-num-big" id="st-total">0</div>
+            <div style="font-size:11px;font-weight:800;color:#16a34a" id="st-rate">Tỷ lệ chốt: 0%</div>
+          </div>
+        </div>
+        <div class="stat-card" style="border-left:4px solid #eab308" onclick="quickFilterStatus('uu_tien_1')">
+          <div class="stat-card-label">Ưu tiên 1</div>
+          <div class="stat-card-num" style="color:#ca8a04" id="st-ut1">0</div>
+        </div>
+        <div class="stat-card" style="border-left:4px solid #f97316" onclick="quickFilterStatus('uu_tien_2')">
+          <div class="stat-card-label">Ưu tiên 2</div>
+          <div class="stat-card-num" style="color:#ea580c" id="st-ut2">0</div>
+        </div>
+        <div class="stat-card" style="border-left:4px solid #22c55e" onclick="quickFilterStatus('da_chot')">
+          <div class="stat-card-label">Đã chốt</div>
+          <div class="stat-card-num" style="color:#16a34a" id="st-chot">0</div>
+        </div>
+        <div class="stat-card" style="border-left:4px solid #ef4444" onclick="quickFilterStatus('rot')">
+          <div class="stat-card-label">Rớt</div>
+          <div class="stat-card-num" style="color:#dc2626" id="st-rot">0</div>
+        </div>
+      </div>
+
+      <!-- Chế độ 1: Bảng thông minh -->
+      <div class="tbl-wrap" id="view-table">
+        <div class="tbl-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th id="th-owner-col" style="display:none">Thành viên phụ trách</th>
+                <th onclick="changeSort('ngayVe')">Ngày về <span id="sort-ngayVe">↓</span></th>
+                <th onclick="changeSort('tenKhach')">Khách hàng & Liên hệ <span id="sort-tenKhach">⇅</span></th>
+                <th>Nguồn</th>
+                <th>Ngày ở</th>
+                <th>Khu vực</th>
+                <th>Tài chính</th>
+                <th onclick="changeSort('tinhTrang')">Tình trạng <span id="sort-tinhTrang">⇅</span></th>
+                <th>Ghi chú (Bấm để sửa nhanh)</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Chế độ 2: Bảng Kanban -->
+      <div class="kanban-grid" id="view-kanban" style="display:none"></div>
+
+      <div class="footer-hint" id="footer-count"></div>
+    </div>
+  </main>
+</div>
+
+<!-- ==================== 3. MODAL ĐỔI MẬT KHẨU CHO USER ==================== -->
+<div class="overlay" id="modal-passwd" style="display:none" onclick="if(event.target===this) closeChangePasswordModal()">
+  <div class="sheet" style="max-width:440px" onclick="event.stopPropagation()">
+    <div class="drag-handle"><div class="drag-bar"></div></div>
+    <div class="sheet-hdr">
+      <div class="sheet-title">🔑 Đổi mật khẩu tài khoản</div>
+      <button class="act-btn" onclick="closeChangePasswordModal()">✕</button>
+    </div>
+    <div class="form-grid" style="grid-template-columns:1fr">
+      <div class="field">
+        <label>Mật khẩu hiện tại <span class="req">*</span></label>
+        <input type="password" id="cp-old" placeholder="Nhập mật khẩu đang dùng">
+      </div>
+      <div class="field">
+        <label>Mật khẩu mới <span class="req">*</span></label>
+        <input type="password" id="cp-new" placeholder="Tối thiểu 6 ký tự">
+      </div>
+      <div class="field">
+        <label>Xác nhận mật khẩu mới <span class="req">*</span></label>
+        <input type="password" id="cp-confirm" placeholder="Nhập lại mật khẩu mới" onkeydown="if(event.key==='Enter') submitChangePassword()">
+      </div>
+    </div>
+    <div class="form-btns">
+      <button class="btn-cancel" onclick="closeChangePasswordModal()">Huỷ</button>
+      <button class="btn-submit" onclick="submitChangePassword()">💾 Cập nhật mật khẩu</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 4. MODAL THÊM / SỬA KHÁCH HÀNG ==================== -->
+<div class="overlay" id="modal-form" style="display:none" onclick="if(event.target===this) closeCustomerModal()">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="drag-handle"><div class="drag-bar"></div></div>
+    <div class="sheet-hdr">
+      <div class="sheet-title" id="form-modal-title">Thêm khách hàng mới</div>
+    </div>
+    <div class="form-grid">
+      <!-- Trường chọn Thành viên phụ trách (Chỉ hiển thị khi Admin thêm/sửa khách) -->
+      <div class="field span2" id="wrap-f-owner" style="display:none">
+        <label>👤 Thành viên phụ trách khách hàng này (Quyền Admin)</label>
+        <select id="f-ownerUid"></select>
+      </div>
+
+      <div class="field">
+        <label>Ngày KH về <span class="req">*</span></label>
+        <input type="date" id="f-ngayVe">
+      </div>
+      <div class="field">
+        <label>Tên khách hàng <span class="req">*</span></label>
+        <input type="text" id="f-tenKhach" placeholder="VD: Nguyễn Văn A">
+      </div>
+      <div class="field">
+        <label>Số điện thoại / Zalo</label>
+        <input type="tel" id="f-sdt" placeholder="VD: 0909123456">
+      </div>
+      <div class="field">
+        <label>Nguồn marketing</label>
+        <select id="f-nguon" onchange="toggleFormNotes()">
+          <option value="">-- Chọn nguồn --</option>
+        </select>
+      </div>
+      <div class="field span2" id="wrap-noteNguon" style="display:none">
+        <label>Ghi chú nguồn</label>
+        <input type="text" id="f-noteNguon" placeholder="VD: Nhóm Zalo Căn hộ 4-6tr, bài đăng fanpage...">
+      </div>
+      <div class="field">
+        <label>Ngày ở dự kiến</label>
+        <input type="text" id="f-ngayO" placeholder="VD: 01/11 hoặc Cuối tháng">
+      </div>
+      <div class="field">
+        <label>Khu vực cần tìm</label>
+        <select id="f-khuVuc" onchange="toggleFormNotes()">
+          <option value="">-- Chọn khu vực --</option>
+        </select>
+      </div>
+      <div class="field span2" id="wrap-noteKhuVuc" style="display:none">
+        <label>Ghi chú khu vực</label>
+        <input type="text" id="f-noteKhuVuc" placeholder="VD: Gần cầu Thị Nghè, giáp Q1...">
+      </div>
+      <div class="field">
+        <label>Thông tin tài chính</label>
+        <input type="text" id="f-taiChinh" placeholder="VD: Ngân sách 6-8tr, cọc 1 tháng">
+      </div>
+      <div class="field">
+        <label>Tình trạng chăm sóc</label>
+        <select id="f-tinhTrang">
+          <option value="uu_tien_1">Ưu tiên 1</option>
+          <option value="uu_tien_2">Ưu tiên 2</option>
+          <option value="da_chot">Đã chốt</option>
+          <option value="rot">Rớt</option>
+        </select>
+      </div>
+      <div class="field span2">
+        <label>Ghi chú chi tiết</label>
+        <textarea id="f-ghiChu" placeholder="Yêu cầu phòng (ban công, nuôi pet, giờ giấc), lịch hẹn đi xem..."></textarea>
+      </div>
+    </div>
+    <div class="form-btns">
+      <button class="btn-cancel" onclick="closeCustomerModal()">Huỷ</button>
+      <button class="btn-submit" id="btn-save-customer" onclick="saveCustomerForm()">💾 Lưu khách hàng</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 5. MODAL QUẢN LÝ USER DÀNH CHO ADMIN ==================== -->
+<div class="overlay" id="modal-admin-user" style="display:none" onclick="if(event.target===this) closeAdminUserModal()">
+  <div class="sheet" style="max-width:480px" onclick="event.stopPropagation()">
+    <div class="drag-handle"><div class="drag-bar"></div></div>
+    <div class="sheet-hdr">
+      <div class="sheet-title" id="au-modal-title">Thêm tài khoản thành viên</div>
+      <button class="act-btn" onclick="closeAdminUserModal()">✕</button>
+    </div>
+    <div class="form-grid" style="grid-template-columns:1fr">
+      <div class="field">
+        <label>Tên hiển thị của thành viên <span class="req">*</span></label>
+        <input type="text" id="au-name" placeholder="VD: Hà Khải Phát">
+      </div>
+      <div class="field">
+        <label>Email đăng nhập <span class="req">*</span></label>
+        <input type="email" id="au-email" placeholder="phat@gmhouse.vn">
+      </div>
+      <div class="field">
+        <label id="au-pass-label">Mật khẩu khởi tạo <span class="req">*</span></label>
+        <input type="password" id="au-pass" placeholder="Tối thiểu 6 ký tự">
+      </div>
+      <div class="field">
+        <label>Phân quyền hệ thống</label>
+        <select id="au-role">
+          <option value="member">👤 Thành viên (Chỉ xem và quản lý khách cá nhân)</option>
+          <option value="admin">👑 Quản trị viên - Admin (Toàn quyền hệ thống + Cá nhân)</option>
+        </select>
+      </div>
+      <div class="field" id="au-active-wrap" style="display:none">
+        <label>Trạng thái hoạt động</label>
+        <select id="au-active">
+          <option value="true">🟢 Đang hoạt động</option>
+          <option value="false">🔒 Tạm khóa đăng nhập</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-btns">
+      <button class="btn-cancel" onclick="closeAdminUserModal()">Huỷ</button>
+      <button class="btn-submit" onclick="saveAdminUserForm()">💾 Lưu thông tin thành viên</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 6. MODAL SAO LƯU & XUẤT EXCEL ==================== -->
+<div class="overlay" id="modal-sync" style="display:none" onclick="if(event.target===this) closeSyncModal()">
+  <div class="sheet" style="max-width:540px" onclick="event.stopPropagation()">
+    <div class="drag-handle"><div class="drag-bar"></div></div>
+    <div class="sheet-hdr">
+      <div class="sheet-title">⇅ Quản lý Dữ liệu, Sao lưu & Xuất CSV</div>
+      <button class="act-btn" onclick="closeSyncModal()">✕</button>
+    </div>
+    <div class="sync-body">
+      <div class="sync-box">
+        <div class="sync-box-title">📤 Xuất dữ liệu Cá nhân của bạn</div>
+        <div class="sync-box-desc">Tải danh sách khách hàng cá nhân của bạn ra file <b>.JSON</b> (để gửi cho Admin hoặc sang máy khác) hoặc file <b>.CSV (Excel)</b>.</div>
+        <div class="btn-row">
+          <button class="btn-action" style="background:#1d4ed8;color:#fff" onclick="downloadBackupJSON(false)">📥 Backup Cá nhân (.JSON)</button>
+          <button class="btn-action" style="background:#15803d;color:#fff" onclick="downloadExcelCSV('personal')">📊 Xuất CSV Cá nhân</button>
+        </div>
+      </div>
+
+      <!-- Khối xuất/nhập nâng cao dành riêng cho Admin -->
+      <div class="sync-box" id="admin-sync-box" style="display:none;border-color:#fde68a;background:#fffbeb">
+        <div class="sync-box-title" style="color:#92400e">👑 Công cụ Xuất / In Danh Sách dành cho Admin</div>
+        <div class="sync-box-desc">Xuất toàn bộ khách hàng của tất cả thành viên ra file <b>.CSV chuẩn Excel</b> để in ấn hoặc lưu trữ tổng hợp toàn công ty.</div>
+        <div class="btn-row">
+          <button class="btn-action" style="background:#b45309;color:#fff" onclick="downloadBackupJSON(true)">📦 Backup Toàn Team (.JSON)</button>
+          <button class="btn-action" style="background:#15803d;color:#fff" onclick="exportAdminCSV('all')">🖨️ Xuất CSV Toàn Team để In</button>
+        </div>
+      </div>
+
+      <div class="sync-box">
+        <div class="sync-box-title">📂 Nhập dữ liệu từ File Backup (.JSON)</div>
+        <div class="sync-box-desc">Khi thành viên gửi file <b>.JSON</b> báo cáo về, Admin có thể chọn nạp trực tiếp vào tài khoản của thành viên đó để tổng hợp và in CSV.</div>
+        <div class="field" id="import-target-owner-wrap" style="display:none;margin-bottom:10px">
+          <label>Gán dữ liệu nhập vào cho thành viên:</label>
+          <select id="imp-owner-select"></select>
+        </div>
+        <input type="file" id="inp-import-file" accept=".json" onchange="previewImportFile(event)" style="font-size:13px;width:100%">
+        <div id="import-confirm-box" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #cbd5e1">
+          <div id="import-summary" style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:10px"></div>
+          <div class="btn-row">
+            <button class="btn-action" style="background:#2563eb;color:#fff" onclick="executeImport('merge')">🔗 Gộp thêm (Giữ khách cũ)</button>
+            <button class="btn-action" style="background:#ef4444;color:#fff" onclick="executeImport('replace')">🔄 Thay thế toàn bộ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Thanh thông báo kèm nút Hoàn tác (Undo) -->
+<div class="toast-bar" id="toast-bar">
+  <span id="toast-text">Đã lưu</span>
+  <button class="btn-undo" id="btn-toast-undo" style="display:none" onclick="handleUndo()">Hoàn tác</button>
+</div>
+
+<!-- ==================== 7. NHÚNG THƯ VIỆN GMHouseDB v4.0 & LOGIC ỨNG DỤNG ==================== -->
+<script src="./gmhouse-db.js"></script>
+<script>
+
+const db = new GMHouseDataEngine();
+
+let uiState = {
+  authMode: 'login',
+  workspace: 'personal',    // 'personal' (Bảng cá nhân) | 'admin' (Trang Quản trị Admin)
+  adminSubTab: 'customers', // 'customers' | 'users'
+  viewMode: 'month',
+  layout: 'table',
+  sortField: 'ngayVe',
+  sortAsc: false,
+  editingCustomerId: null,
+  editingUserUid: null,
+  pendingImport: null,
+  lastRenderedItems: [],
+  toastTimer: null
+};
+
+function todayISO() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function escHTML(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function showToast(message, allowUndo = false) {
+  const bar = document.getElementById('toast-bar');
+  const txt = document.getElementById('toast-text');
+  const undoBtn = document.getElementById('btn-toast-undo');
+  txt.textContent = message;
+  undoBtn.style.display = allowUndo ? 'inline-block' : 'none';
+  bar.classList.add('show');
+  if (uiState.toastTimer) clearTimeout(uiState.toastTimer);
+  uiState.toastTimer = setTimeout(() => bar.classList.remove('show'), 3600);
+}
+
+async function handleUndo() {
+  const ok = await db.undoLastAction();
+  if (ok) {
+    showToast('↩️ Đã hoàn tác thao tác!', false);
+    refreshUI();
+  }
+}
+
+function initSelectOptions() {
+  const fltNguon = document.getElementById('flt-nguon');
+  const fNguon = document.getElementById('f-nguon');
+  db.SCHEMA.SOURCES.forEach(src => {
+    fltNguon.insertAdjacentHTML('beforeend', `<option value="${escHTML(src)}">${escHTML(src)}</option>`);
+    fNguon.insertAdjacentHTML('beforeend', `<option value="${escHTML(src)}">${escHTML(src)}</option>`);
+  });
+
+  const fltKv = document.getElementById('flt-khuvuc');
+  const fKv = document.getElementById('f-khuVuc');
+  db.SCHEMA.AREAS.forEach(area => {
+    fltKv.insertAdjacentHTML('beforeend', `<option value="${escHTML(area)}">${escHTML(area)}</option>`);
+    fKv.insertAdjacentHTML('beforeend', `<option value="${escHTML(area)}">${escHTML(area)}</option>`);
+  });
+}
+
+/* ── 1. XÁC THỰC ĐĂNG NHẬP / ĐĂNG KÝ ── */
+function switchAuthMode(mode) {
+  uiState.authMode = mode;
+  document.getElementById('tab-btn-login').classList.toggle('active', mode === 'login');
+  document.getElementById('tab-btn-register').classList.toggle('active', mode === 'register');
+  document.getElementById('group-name').style.display = mode === 'register' ? 'block' : 'none';
+  document.getElementById('group-admin-code').style.display = mode === 'register' ? 'block' : 'none';
+  document.getElementById('auth-title').textContent = mode === 'login' ? 'Đăng nhập hệ thống' : 'Tạo tài khoản mới';
+  document.getElementById('btn-auth-action').textContent = mode === 'login' ? 'Đăng nhập vào Hệ thống' : 'Đăng ký & Bắt đầu sử dụng';
+  document.getElementById('auth-alert').style.display = 'none';
+}
+
+async function submitAuth() {
+  const alertBox = document.getElementById('auth-alert');
+  alertBox.style.display = 'none';
+  const name = document.getElementById('inp-name').value;
+  const email = document.getElementById('inp-email').value;
+  const password = document.getElementById('inp-pass').value;
+  const adminCode = document.getElementById('inp-admin-code').value;
+
+  try {
+    if (uiState.authMode === 'register') {
+      await db.register({ name, email, password, adminCode });
+      showToast('🎉 Tạo tài khoản thành công!');
+    } else {
+      await db.login({ email, password });
+      showToast('👋 Đăng nhập thành công!');
+    }
+    uiState.workspace = 'personal';
+    syncAuthScreen();
+  } catch (err) {
+    alertBox.textContent = err.message || 'Lỗi xác thực';
+    alertBox.style.display = 'block';
+  }
+}
+
+async function quickLoginRole(role) {
+  if (role === 'admin') {
+    await db.login({ email: 'admin@gmhouse.vn', password: 'admin123' });
+    // Đảm bảo có sẵn ít nhất 1 thành viên mẫu & khách hàng mẫu để Admin thấy ngay tính năng
+    const members = db.listAllRegisteredMembers();
+    if (members.length <= 1) {
+      const m1 = await db.adminCreateUser({ name: 'Hà Khải Phát (Sale)', email: 'phat@gmhouse.vn', password: '123456', role: 'member' });
+      const m2 = await db.adminCreateUser({ name: 'Nguyễn Gia Huy (Sale)', email: 'huy@gmhouse.vn', password: '123456', role: 'member' });
+      await db.seedSampleData(m1.uid);
+      await db.seedSampleData(db.getSafeUser().uid);
+    }
+    uiState.workspace = 'admin';
+    showToast('👑 Đã đăng nhập quyền ADMIN (Vinh James)!');
+  } else {
+    const memberEmail = 'phat@gmhouse.vn';
+    try {
+      await db.login({ email: memberEmail, password: '123456' });
+    } catch {
+      await db.register({ name: 'Hà Khải Phát (Sale)', email: memberEmail, password: '123456' });
+      await db.seedSampleData();
+    }
+    uiState.workspace = 'personal';
+    showToast('👤 Đã đăng nhập quyền THÀNH VIÊN (Chỉ xem được khách cá nhân)!');
+  }
+  syncAuthScreen();
+}
+
+function renderSavedMemberChips() {
+  const members = db.listAllRegisteredMembers();
+  const wrap = document.getElementById('saved-members-wrap');
+  const chips = document.getElementById('member-chips');
+  if (members.length === 0) {
+    wrap.style.display = 'none';
+    return;
+  }
+  wrap.style.display = 'block';
+  chips.innerHTML = members.map(m => {
+    const icon = m.role === 'admin' ? '👑' : '👤';
+    return `<button class="member-chip" onclick="fillMemberEmail('${escHTML(m.email)}')">${icon} ${escHTML(m.name)} (${escHTML(m.email)})</button>`;
+  }).join('');
+}
+
+function fillMemberEmail(email) {
+  switchAuthMode('login');
+  document.getElementById('inp-email').value = email;
+  document.getElementById('inp-pass').value = (email === 'admin@gmhouse.vn') ? 'admin123' : '';
+  document.getElementById('inp-pass').focus();
+}
+
+async function doLogout() {
+  await db.logout();
+  syncAuthScreen();
+}
+
+/* ── 2. ĐỔI MẬT KHẨU CHO NGƯỜI DÙNG ── */
+function openChangePasswordModal() {
+  document.getElementById('cp-old').value = '';
+  document.getElementById('cp-new').value = '';
+  document.getElementById('cp-confirm').value = '';
+  document.getElementById('modal-passwd').style.display = 'flex';
+  setTimeout(() => document.getElementById('cp-old').focus(), 60);
+}
+
+function closeChangePasswordModal() {
+  document.getElementById('modal-passwd').style.display = 'none';
+}
+
+async function submitChangePassword() {
+  const oldPassword = document.getElementById('cp-old').value;
+  const newPassword = document.getElementById('cp-new').value;
+  const confirmPass = document.getElementById('cp-confirm').value;
+
+  if (newPassword !== confirmPass) {
+    alert('Mật khẩu mới và xác nhận mật khẩu không khớp!');
+    return;
+  }
+
+  try {
+    await db.changeMyPassword({ oldPassword, newPassword });
+    closeChangePasswordModal();
+    showToast('🔑 Đã đổi mật khẩu thành công!');
+  } catch (err) {
+    alert(err.message || 'Không thể đổi mật khẩu.');
+  }
+}
+
+/* ── 3. ĐIỀU HƯỚNG KHÔNG GIAN CÁ NHÂN vs TRANG QUẢN TRỊ ADMIN ── */
+function syncAuthScreen() {
+  const user = db.getSafeUser();
+  if (!user) {
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'flex';
+    renderSavedMemberChips();
+    return;
+  }
+
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  document.getElementById('lbl-user-name').textContent = user.name;
+  document.getElementById('lbl-user-email').textContent = user.email;
+
+  const rolePill = document.getElementById('lbl-role-pill');
+  if (db.isAdmin()) {
+    rolePill.textContent = '👑 ADMIN';
+    rolePill.className = 'role-pill-admin';
+    document.getElementById('admin-workspace-switcher').style.display = 'block';
+  } else {
+    rolePill.textContent = '👤 THÀNH VIÊN';
+    rolePill.className = 'role-pill-member';
+    document.getElementById('admin-workspace-switcher').style.display = 'none';
+    uiState.workspace = 'personal';
+  }
+
+  if (!document.getElementById('flt-date').value) {
+    document.getElementById('flt-date').value = todayISO();
+  }
+
+  applyWorkspaceLayout();
+}
+
+function switchWorkspace(ws) {
+  if (ws === 'admin' && !db.isAdmin()) return;
+  uiState.workspace = ws;
+  applyWorkspaceLayout();
+}
+
+function switchAdminSubTab(sub) {
+  uiState.adminSubTab = sub;
+  document.getElementById('asub-customers').classList.toggle('active', sub === 'customers');
+  document.getElementById('asub-users').classList.toggle('active', sub === 'users');
+  applyWorkspaceLayout();
+}
+
+function applyWorkspaceLayout() {
+  const isAdminSpace = db.isAdmin() && uiState.workspace === 'admin';
+  const hdr = document.getElementById('main-hdr');
+  hdr.classList.toggle('admin-mode', isAdminSpace);
+
+  // Nút active trên thanh chuyển đổi
+  const btnPersonal = document.getElementById('ws-btn-personal');
+  const btnAdmin = document.getElementById('ws-btn-admin');
+  if (btnPersonal && btnAdmin) {
+    btnPersonal.className = isAdminSpace ? 'ws-btn' : 'ws-btn active';
+    btnAdmin.className = isAdminSpace ? 'ws-btn active-admin' : 'ws-btn';
+  }
+
+  document.getElementById('hdr-main-title').textContent = isAdminSpace
+    ? '👑 Trung Tâm Quản Trị Team & Giám Sát Khách Hàng'
+    : '📋 Bảng Theo Dõi Khách Hàng Cá Nhân';
+
+  document.getElementById('admin-only-top-bar').style.display = isAdminSpace ? 'block' : 'none';
+  document.getElementById('flt-admin-member').style.display = isAdminSpace ? 'block' : 'none';
+  document.getElementById('th-owner-col').style.display = isAdminSpace ? '' : 'none';
+  document.getElementById('admin-perf-overview').style.display = (isAdminSpace && uiState.adminSubTab === 'customers') ? 'block' : 'none';
+
+  if (isAdminSpace && uiState.adminSubTab === 'users') {
+    document.getElementById('admin-users-panel').style.display = 'block';
+    document.getElementById('crm-customers-panel').style.display = 'none';
+    renderAdminUsersTable();
+  } else {
+    document.getElementById('admin-users-panel').style.display = 'none';
+    document.getElementById('crm-customers-panel').style.display = 'block';
+    populateAdminMemberDropdowns();
+    refreshUI();
+  }
+}
+
+function populateAdminMemberDropdowns() {
+  if (!db.isAdmin()) return;
+  const members = db.listAllRegisteredMembers();
+  document.getElementById('admin-user-count').textContent = members.length;
+
+  // Dropdown lọc thành viên trên thanh công cụ Admin
+  const fltSel = document.getElementById('flt-admin-member');
+  const currentVal = fltSel.value || 'all';
+  fltSel.innerHTML = `<option value="all">👥 Tất cả thành viên (${members.length} người)</option>` +
+    members.map(m => `<option value="${escHTML(m.uid)}">${m.role === 'admin' ? '👑' : '👤'} ${escHTML(m.name)} (${escHTML(m.email)})</option>`).join('');
+  if ( Array.from(fltSel.options).some(o => o.value === currentVal) ) {
+    fltSel.value = currentVal;
+  }
+
+  // Dropdown gán người phụ trách trong Modal thêm/sửa khách
+  const fOwner = document.getElementById('f-ownerUid');
+  fOwner.innerHTML = members.map(m =>
+    `<option value="${escHTML(m.uid)}">${m.role === 'admin' ? '👑' : '👤'} ${escHTML(m.name)} (${escHTML(m.email)})</option>`
+  ).join('');
+
+  // Dropdown khi import file JSON
+  const impOwner = document.getElementById('imp-owner-select');
+  impOwner.innerHTML =
+    `<option value="${escHTML(db.getSafeUser().uid)}">Gán vào bảng cá nhân của tôi (${escHTML(db.getSafeUser().name)})</option>` +
+    `<option value="preserve_from_file">Giữ nguyên thành viên gốc trong file Backup</option>` +
+    members.map(m => `<option value="${escHTML(m.uid)}">Gán cho: ${escHTML(m.name)} (${escHTML(m.email)})</option>`).join('');
+}
+
+function selectAdminMemberFilter(uid) {
+  const fltSel = document.getElementById('flt-admin-member');
+  fltSel.value = uid;
+  refreshUI();
+}
+
+/* ── 4. BẢNG TỔNG HỢP HIỆU SUẤT & QUẢN LÝ USER CỦA ADMIN ── */
+function renderAdminPerformanceCards() {
+  if (!db.isAdmin() || uiState.workspace !== 'admin') return;
+  const perfList = db.getAdminMemberPerformance();
+  const selectedUid = document.getElementById('flt-admin-member').value;
+  const grid = document.getElementById('admin-perf-grid');
+
+  grid.innerHTML = perfList.map(m => {
+    const isSel = selectedUid === m.uid ? 'selected' : '';
+    const badge = m.role === 'admin' ? '👑' : '👤';
+    return `<div class="member-stat-box ${isSel}" onclick="selectAdminMemberFilter('${escHTML(m.uid)}')">
+      <div class="ms-name">
+        <span>${badge} ${escHTML(m.name)}</span>
+        <span style="background:#e0e7ff;color:#1e40af;padding:2px 7px;border-radius:99px;font-size:11px">${m.totalCustomers} KH</span>
+      </div>
+      <div class="ms-email">${escHTML(m.email)}</div>
+      <div class="ms-metrics">
+        <span style="color:#ca8a04">UT1: ${m.uu_tien_1}</span>
+        <span style="color:#ea580c">UT2: ${m.uu_tien_2}</span>
+        <span style="color:#16a34a">Chốt: ${m.da_chot} (${m.conversionRate}%)</span>
+        <span style="color:#dc2626">Rớt: ${m.rot}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAdminUsersTable() {
+  if (!db.isAdmin()) return;
+  const perfList = db.getAdminMemberPerformance();
+  document.getElementById('admin-user-count').textContent = perfList.length;
+  const tbody = document.getElementById('admin-users-tbody');
+
+  tbody.innerHTML = perfList.map((m, i) => {
+    const cls = i % 2 === 0 ? 'tr-even' : 'tr-odd';
+    const roleHtml = m.role === 'admin'
+      ? `<span class="role-pill-admin">👑 Admin</span>`
+      : `<span class="role-pill-member">👤 Thành viên</span>`;
+    const statusHtml = m.active !== false
+      ? `<span style="color:#15803d;font-weight:800;font-size:12px">🟢 Hoạt động</span>`
+      : `<span style="color:#dc2626;font-weight:800;font-size:12px">🔒 Đã khóa</span>`;
+
+    return `<tr class="${cls}">
+      <td class="cell-name">${escHTML(m.name)}</td>
+      <td class="cell-grey">${escHTML(m.email)}</td>
+      <td>${roleHtml}</td>
+      <td>${statusHtml}</td>
+      <td style="font-weight:800">${m.totalCustomers}</td>
+      <td style="color:#d97706;font-weight:800">${m.uu_tien_1 + m.uu_tien_2}</td>
+      <td style="color:#16a34a;font-weight:800">${m.da_chot} (${m.conversionRate}%)</td>
+      <td style="white-space:nowrap">
+        <button class="act-btn act-edit" onclick="jumpToMemberCustomers('${escHTML(m.uid)}')" title="Xem danh sách khách hàng của thành viên này">👁️ Xem KH</button>
+        <button class="act-btn act-edit" onclick="openAdminUserModal('${escHTML(m.uid)}')" title="Sửa tên, quyền hoặc đặt lại mật khẩu">✏️ Sửa / Đổi MK</button>
+        ${m.uid !== db.getSafeUser().uid ? `<button class="act-btn act-del" onclick="handleAdminDeleteUser('${escHTML(m.uid)}', '${escHTML(m.name)}')">🗑️ Xóa</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function jumpToMemberCustomers(uid) {
+  uiState.adminSubTab = 'customers';
+  document.getElementById('asub-customers').classList.add('active');
+  document.getElementById('asub-users').classList.remove('active');
+  applyWorkspaceLayout();
+  selectAdminMemberFilter(uid);
+}
+
+function openAdminUserModal(targetUid = null) {
+  uiState.editingUserUid = targetUid;
+  const user = targetUid ? db.getMemberByUid(targetUid) : null;
+
+  document.getElementById('au-modal-title').textContent = user
+    ? `Chỉnh sửa thành viên: ${user.name}`
+    : '➕ Tạo tài khoản thành viên mới';
+  document.getElementById('au-name').value = user ? user.name : '';
+  document.getElementById('au-email').value = user ? user.email : '';
+  document.getElementById('au-email').disabled = Boolean(user);
+  document.getElementById('au-pass').value = '';
+  document.getElementById('au-pass-label').innerHTML = user
+    ? 'Đặt lại mật khẩu mới (Để trống nếu giữ nguyên)'
+    : 'Mật khẩu khởi tạo <span class="req">*</span>';
+  document.getElementById('au-role').value = user ? user.role : 'member';
+  document.getElementById('au-active-wrap').style.display = user ? 'block' : 'none';
+  document.getElementById('au-active').value = (user && user.active === false) ? 'false' : 'true';
+
+  document.getElementById('modal-admin-user').style.display = 'flex';
+}
+
+function closeAdminUserModal() {
+  document.getElementById('modal-admin-user').style.display = 'none';
+}
+
+async function saveAdminUserForm() {
+  const name = document.getElementById('au-name').value.trim();
+  const email = document.getElementById('au-email').value.trim();
+  const pass = document.getElementById('au-pass').value;
+  const role = document.getElementById('au-role').value;
+  const active = document.getElementById('au-active').value === 'true';
+
+  if (!name || !email) {
+    alert('Vui lòng nhập đầy đủ Tên và Email thành viên.');
+    return;
+  }
+
+  try {
+    if (uiState.editingUserUid) {
+      await db.adminUpdateUser(uiState.editingUserUid, { name, role, active });
+      if (pass && pass.trim().length > 0) {
+        await db.adminResetUserPassword(uiState.editingUserUid, pass);
+      }
+      showToast('✅ Đã cập nhật tài khoản thành viên!');
+    } else {
+      await db.adminCreateUser({ name, email, password: pass, role });
+      showToast('🎉 Đã tạo tài khoản thành viên mới!');
+    }
+    closeAdminUserModal();
+    populateAdminMemberDropdowns();
+    renderAdminUsersTable();
+    refreshUI();
+  } catch (err) {
+    alert(err.message || 'Lỗi thao tác quản trị');
+  }
+}
+
+async function handleAdminDeleteUser(uid, name) {
+  const ok = confirm(`Bạn có chắc chắn muốn xóa tài khoản thành viên "${name}"?
+
+(Toàn bộ khách hàng của ${name} sẽ được tự động chuyển về cho tài khoản Admin để không bị thất thoát dữ liệu).`);
+  if (!ok) return;
+  try {
+    await db.adminDeleteUser(uid, { transferCustomersToAdmin: true });
+    showToast(`🗑️ Đã xóa tài khoản ${name} và thu hồi khách hàng về Admin`);
+    populateAdminMemberDropdowns();
+    renderAdminUsersTable();
+    refreshUI();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+/* ── 5. BỘ LỌC, HIỂN THỊ BẢNG & KANBAN KHÁCH HÀNG ── */
+function changePeriod(mode) {
+  uiState.viewMode = mode;
+  ['day', 'week', 'month', 'all', 'active'].forEach(m => {
+    const btn = document.getElementById('ptab-' + m);
+    if (!btn) return;
+    btn.classList.toggle('active', m === mode);
+    if (m === 'active') btn.style.color = m === mode ? '#fff' : '#d97706';
+  });
+  document.getElementById('flt-date').style.display = (mode === 'all' || mode === 'active') ? 'none' : '';
+  refreshUI();
+}
+
+function changeLayout(layout) {
+  uiState.layout = layout;
+  document.getElementById('lbtn-table').classList.toggle('active', layout === 'table');
+  document.getElementById('lbtn-kanban').classList.toggle('active', layout === 'kanban');
+  document.getElementById('view-table').style.display = layout === 'table' ? 'block' : 'none';
+  document.getElementById('view-kanban').style.display = layout === 'kanban' ? 'grid' : 'none';
+  refreshUI();
+}
+
+function changeSort(field) {
+  if (uiState.sortField === field) {
+    uiState.sortAsc = !uiState.sortAsc;
+  } else {
+    uiState.sortField = field;
+    uiState.sortAsc = true;
+  }
+  ['ngayVe', 'tenKhach', 'tinhTrang'].forEach(f => {
+    const el = document.getElementById('sort-' + f);
+    if (el) el.textContent = f === uiState.sortField ? (uiState.sortAsc ? '↑' : '↓') : '⇅';
+  });
+  refreshUI();
+}
+
+function quickFilterStatus(st) {
+  document.getElementById('flt-status').value = st;
+  refreshUI();
+}
+
+function getPeriodText(viewMode, refDateStr) {
+  const ref = new Date(refDateStr || todayISO());
+  if (viewMode === 'day') return ref.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+  if (viewMode === 'week') {
+    const day = ref.getDay() || 7;
+    const s = new Date(ref); s.setDate(ref.getDate() - day + 1);
+    const e = new Date(s); e.setDate(s.getDate() + 6);
+    return s.toLocaleDateString('vi-VN') + ' – ' + e.toLocaleDateString('vi-VN');
+  }
+  if (viewMode === 'month') return 'Tháng ' + (ref.getMonth() + 1) + '/' + ref.getFullYear();
+  if (viewMode === 'active') return '🔥 Khách đang chăm (Ưu tiên 1 & 2)';
+  return 'Tất cả thời gian';
+}
+
+function refreshUI() {
+  if (!db.getSafeUser()) return;
+  const t0 = performance.now();
+
+  const isAdminSpace = db.isAdmin() && uiState.workspace === 'admin';
+  if (isAdminSpace) {
+    renderAdminPerformanceCards();
+  }
+
+  const scope = isAdminSpace ? 'admin_team' : 'personal';
+  const memberUid = isAdminSpace ? (document.getElementById('flt-admin-member').value || 'all') : db.getSafeUser().uid;
+  const refDate = document.getElementById('flt-date').value || todayISO();
+  const status = document.getElementById('flt-status').value;
+  const nguon = document.getElementById('flt-nguon').value;
+  const khuVuc = document.getElementById('flt-khuvuc').value;
+  const search = document.getElementById('flt-search').value;
+
+  const { items, stats } = db.query({
+    scope,
+    memberUid,
+    viewMode: uiState.viewMode,
+    refDate,
+    status,
+    nguon,
+    khuVuc,
+    search,
+    sortField: uiState.sortField,
+    sortAsc: uiState.sortAsc
+  });
+
+  uiState.lastRenderedItems = items;
+
+  document.getElementById('st-main-label').textContent = isAdminSpace
+    ? (memberUid === 'all' ? 'Tổng KH Toàn Team' : 'Tổng KH Thành viên')
+    : 'Tổng khách Cá nhân';
+  document.getElementById('st-total').textContent = stats.total;
+  document.getElementById('st-period').textContent = getPeriodText(uiState.viewMode, refDate);
+  document.getElementById('st-rate').textContent = `Tỷ lệ chốt: ${stats.conversionRate}%`;
+  document.getElementById('st-ut1').textContent = stats.uu_tien_1;
+  document.getElementById('st-ut2').textContent = stats.uu_tien_2;
+  document.getElementById('st-chot').textContent = stats.da_chot;
+  document.getElementById('st-rot').textContent = stats.rot;
+
+  if (uiState.layout === 'table') {
+    renderTable(items, isAdminSpace);
+  } else {
+    renderKanban(items, isAdminSpace);
+  }
+
+  const dt = (performance.now() - t0).toFixed(2);
+  document.getElementById('engine-status').textContent = `⚡ GMHouseDB · ${dt}ms`;
+  document.getElementById('footer-count').textContent = isAdminSpace
+    ? `👑 [Chế độ Admin] Đang hiển thị ${items.length} / ${stats.totalAllTime} khách hàng`
+    : `📋 [Không gian Cá nhân] Đang hiển thị ${items.length} / ${stats.totalAllTime} khách hàng riêng của ${db.getSafeUser().name}`;
+}
+
+function renderTable(items, isAdminSpace) {
+  const tbody = document.getElementById('tbl-body');
+  const colSpan = isAdminSpace ? 10 : 9;
+  if (items.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="${colSpan}">Chưa có khách hàng nào trong danh sách này. Bấm <b>+ Thêm khách</b> hoặc <b>✨ +5 Khách mẫu</b> để thêm dữ liệu!</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = items.map((c, idx) => {
+    const st = db.SCHEMA.STATUSES[c.tinhTrang] || db.SCHEMA.STATUSES.uu_tien_1;
+    const rowCls = idx % 2 === 0 ? 'tr-even' : 'tr-odd';
+    const dateFormatted = new Date(c.ngayVe).toLocaleDateString('vi-VN');
+
+    const ownerColHtml = isAdminSpace
+      ? `<td><span class="tag-owner">👤 ${escHTML(c.ownerName)}</span></td>`
+      : '';
+
+    const phoneClean = (c.sdt || '').replace(/[^0-9+]/g, '');
+    const contactHtml = phoneClean
+      ? `<div class="cell-sub">
+           <span>📞 ${escHTML(c.sdt)}</span>
+           <a href="https://zalo.me/${escHTML(phoneClean)}" target="_blank" rel="noopener">Zalo</a>
+           <a href="tel:${escHTML(phoneClean)}">Gọi</a>
+         </div>`
+      : '';
+
+    const srcHtml = c.nguon
+      ? `<span class="tag-src">${escHTML(c.nguon)}</span>` +
+        (c.noteNguon ? `<div style="font-size:11px;color:#64748b;margin-top:3px">${escHTML(c.noteNguon)}</div>` : '')
+      : '<span style="color:#cbd5e1">—</span>';
+
+    const areaHtml = c.khuVuc
+      ? `<span class="badge-area">${escHTML(c.khuVuc)}</span>` +
+        (c.noteKhuVuc ? `<div style="font-size:11px;color:#64748b;margin-top:3px">${escHTML(c.noteKhuVuc)}</div>` : '')
+      : '<span style="color:#cbd5e1">—</span>';
+
+    const statusOptions = Object.entries(db.SCHEMA.STATUSES)
+      .map(([k, v]) => `<option value="${k}" ${k === c.tinhTrang ? 'selected' : ''}>${v.label}</option>`)
+      .join('');
+
+    const noteHtml = c.ghiChu
+      ? `<div class="note-cell" onclick="startInlineNote('${escHTML(c.id)}')">${escHTML(c.ghiChu)}</div>`
+      : `<div class="note-cell empty" onclick="startInlineNote('${escHTML(c.id)}')">+ Thêm ghi chú...</div>`;
+
+    return `<tr class="${rowCls}" style="border-left: 3.5px solid ${st.dot}">
+      ${ownerColHtml}
+      <td class="cell-grey">${dateFormatted}</td>
+      <td>
+        <div class="cell-name">${escHTML(c.tenKhach)}</div>
+        ${contactHtml}
+      </td>
+      <td>${srcHtml}</td>
+      <td class="cell-grey">${escHTML(c.ngayO) || '—'}</td>
+      <td>${areaHtml}</td>
+      <td class="cell-grey">${escHTML(c.taiChinh) || '—'}</td>
+      <td>
+        <div class="status-wrap" style="background:${st.bg};border-color:${st.border};color:${st.color}">
+          <span class="badge-dot" style="background:${st.dot}"></span>
+          <select class="status-sel" onchange="quickChangeStatus('${escHTML(c.id)}', this.value)">${statusOptions}</select>
+        </div>
+      </td>
+      <td id="ncell-${escHTML(c.id)}">${noteHtml}</td>
+      <td style="white-space:nowrap">
+        <button class="act-btn act-edit" onclick="openCustomerModal('${escHTML(c.id)}')" title="Chỉnh sửa">✏️</button>
+        <button class="act-btn act-del" onclick="deleteCustomer('${escHTML(c.id)}')" title="Xoá">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderKanban(items, isAdminSpace) {
+  const board = document.getElementById('view-kanban');
+  board.innerHTML = Object.entries(db.SCHEMA.STATUSES).map(([stKey, stMeta]) => {
+    const colItems = items.filter(c => c.tinhTrang === stKey);
+    const cardsHtml = colItems.length === 0
+      ? `<div style="text-align:center;padding:28px 10px;color:#94a3b8;font-size:12.5px">Trống</div>`
+      : colItems.map(c => {
+          const phoneClean = (c.sdt || '').replace(/[^0-9+]/g, '');
+          return `<div class="kanban-card" style="border-left-color:${stMeta.dot}">
+            <div class="k-title">
+              <span>${escHTML(c.tenKhach)}</span>
+              <span style="font-size:11px;color:#64748b">${new Date(c.ngayVe).toLocaleDateString('vi-VN')}</span>
+            </div>
+            <div class="k-meta">
+              ${isAdminSpace ? `<span class="tag-owner">👤 ${escHTML(c.ownerName)}</span>` : ''}
+              ${c.khuVuc ? `<span class="badge-area">📍 ${escHTML(c.khuVuc)}</span>` : ''}
+              ${c.nguon ? `<span class="tag-src">${escHTML(c.nguon)}</span>` : ''}
+              ${c.taiChinh ? `<span>💰 ${escHTML(c.taiChinh)}</span>` : ''}
+            </div>
+            ${c.ghiChu ? `<div class="k-note">${escHTML(c.ghiChu)}</div>` : ''}
+            <div class="k-footer">
+              <div>
+                ${phoneClean ? `<a href="https://zalo.me/${escHTML(phoneClean)}" target="_blank" style="font-size:11.5px;font-weight:800;color:#1d4ed8;text-decoration:none">💬 Zalo: ${escHTML(c.sdt)}</a>` : ''}
+              </div>
+              <div>
+                <button class="act-btn act-edit" onclick="openCustomerModal('${escHTML(c.id)}')">✏️</button>
+                <button class="act-btn act-del" onclick="deleteCustomer('${escHTML(c.id)}')">🗑️</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+
+    return `<div class="kanban-col">
+      <div class="kanban-col-hdr" style="color:${stMeta.color}">
+        <span>● ${stMeta.label}</span>
+        <span class="kanban-count">${colItems.length}</span>
+      </div>
+      <div>${cardsHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── 6. THÊM / SỬA / XÓA KHÁCH HÀNG ── */
+async function quickChangeStatus(id, newStatus) {
+  await db.patch(id, { tinhTrang: newStatus });
+  showToast('✅ Đã cập nhật tình trạng', true);
+  refreshUI();
+}
+
+function startInlineNote(id) {
+  const c = db.getRecordById(id);
+  if (!c) return;
+  const cell = document.getElementById('ncell-' + id);
+  if (!cell) return;
+  const ta = document.createElement('textarea');
+  ta.className = 'note-ta';
+  ta.rows = 2;
+  ta.value = c.ghiChu || '';
+  cell.innerHTML = '';
+  cell.appendChild(ta);
+  ta.focus();
+
+  const save = async () => {
+    if (ta.value !== (c.ghiChu || '')) {
+      await db.patch(id, { ghiChu: ta.value });
+      showToast('💾 Đã lưu ghi chú', true);
+    }
+    refreshUI();
+  };
+  ta.addEventListener('blur', save);
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      ta.removeEventListener('blur', save);
+      refreshUI();
+    }
+  });
+}
+
+function toggleFormNotes() {
+  const nguon = document.getElementById('f-nguon').value;
+  const kv = document.getElementById('f-khuVuc').value;
+  document.getElementById('wrap-noteNguon').style.display = nguon ? 'block' : 'none';
+  document.getElementById('wrap-noteKhuVuc').style.display = kv === 'Khác' ? 'block' : 'none';
+}
+
+function openCustomerModal(editId = null) {
+  uiState.editingCustomerId = editId;
+  const item = editId ? db.getRecordById(editId) : null;
+
+  document.getElementById('form-modal-title').textContent = item ? 'Chỉnh sửa thông tin khách hàng' : 'Thêm khách hàng mới';
+  document.getElementById('btn-save-customer').textContent = item ? '💾 Lưu thay đổi' : '➕ Thêm khách hàng';
+
+  // Nếu là Admin, cho phép chọn người phụ trách khách hàng này
+  const wrapOwner = document.getElementById('wrap-f-owner');
+  if (db.isAdmin()) {
+    populateAdminMemberDropdowns();
+    wrapOwner.style.display = 'block';
+    const defaultOwner = item
+      ? item.ownerUid
+      : (uiState.workspace === 'admin' && document.getElementById('flt-admin-member').value !== 'all'
+          ? document.getElementById('flt-admin-member').value
+          : db.getSafeUser().uid);
+    document.getElementById('f-ownerUid').value = defaultOwner;
+  } else {
+    wrapOwner.style.display = 'none';
+  }
+
+  document.getElementById('f-ngayVe').value = item ? item.ngayVe : todayISO();
+  document.getElementById('f-tenKhach').value = item ? item.tenKhach : '';
+  document.getElementById('f-sdt').value = item ? (item.sdt || '') : '';
+  document.getElementById('f-nguon').value = item ? item.nguon : '';
+  document.getElementById('f-noteNguon').value = item ? item.noteNguon : '';
+  document.getElementById('f-ngayO').value = item ? item.ngayO : '';
+  document.getElementById('f-khuVuc').value = item ? item.khuVuc : '';
+  document.getElementById('f-noteKhuVuc').value = item ? item.noteKhuVuc : '';
+  document.getElementById('f-taiChinh').value = item ? item.taiChinh : '';
+  document.getElementById('f-tinhTrang').value = item ? item.tinhTrang : 'uu_tien_1';
+  document.getElementById('f-ghiChu').value = item ? item.ghiChu : '';
+
+  toggleFormNotes();
+  document.getElementById('modal-form').style.display = 'flex';
+  setTimeout(() => document.getElementById('f-tenKhach').focus(), 60);
+}
+
+function closeCustomerModal() {
+  document.getElementById('modal-form').style.display = 'none';
+}
+
+async function saveCustomerForm() {
+  const tenKhach = document.getElementById('f-tenKhach').value.trim();
+  if (!tenKhach) {
+    alert('Vui lòng nhập tên khách hàng!');
+    return;
+  }
+
+  const payload = {
+    id: uiState.editingCustomerId || undefined,
+    ngayVe: document.getElementById('f-ngayVe').value || todayISO(),
+    tenKhach,
+    sdt: document.getElementById('f-sdt').value.trim(),
+    nguon: document.getElementById('f-nguon').value,
+    noteNguon: document.getElementById('f-noteNguon').value.trim(),
+    ngayO: document.getElementById('f-ngayO').value.trim(),
+    khuVuc: document.getElementById('f-khuVuc').value,
+    noteKhuVuc: document.getElementById('f-noteKhuVuc').value.trim(),
+    taiChinh: document.getElementById('f-taiChinh').value.trim(),
+    tinhTrang: document.getElementById('f-tinhTrang').value,
+    ghiChu: document.getElementById('f-ghiChu').value.trim()
+  };
+
+  if (db.isAdmin()) {
+    payload.ownerUid = document.getElementById('f-ownerUid').value || db.getSafeUser().uid;
+  }
+
+  await db.upsert(payload);
+  closeCustomerModal();
+  showToast(uiState.editingCustomerId ? '💾 Đã cập nhật khách hàng' : '✅ Đã thêm khách hàng mới', true);
+  refreshUI();
+}
+
+async function deleteCustomer(id) {
+  await db.remove(id);
+  showToast('🗑️ Đã xoá khách hàng', true);
+  refreshUI();
+}
+
+async function seedMoreSamples() {
+  let targetUid = db.getSafeUser().uid;
+  if (db.isAdmin() && uiState.workspace === 'admin') {
+    const sel = document.getElementById('flt-admin-member').value;
+    if (sel && sel !== 'all') targetUid = sel;
+  }
+  const count = await db.seedSampleData(targetUid);
+  showToast(`✨ Đã tạo thêm ${count} khách hàng mẫu!`);
+  refreshUI();
+}
+
+/* ── 7. XUẤT CSV IN ẤN DÀNH CHO ADMIN & SAO LƯU JSON ── */
+function triggerDownload(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportAdminCSV(mode = 'filtered') {
+  if (!db.isAdmin()) return;
+  const stamp = todayISO();
+  if (mode === 'filtered') {
+    const csv = db.exportCSV({
+      scope: 'admin_team',
+      itemsOverride: uiState.lastRenderedItems
+    });
+    triggerDownload(csv, `GMHouse_InDanhSachKhachHang_TheoBoLoc_${stamp}.csv`, 'text/csv;charset=utf-8;');
+    showToast(`🖨️ Đã xuất ${uiState.lastRenderedItems.length} khách hàng ra file CSV để in!`);
+  } else {
+    const csv = db.exportCSV({ scope: 'admin_team', memberUid: 'all' });
+    triggerDownload(csv, `GMHouse_DanhSachKhachHang_ToanTeam_${stamp}.csv`, 'text/csv;charset=utf-8;');
+    showToast('📊 Đã xuất toàn bộ khách hàng của tất cả thành viên ra CSV!');
+  }
+}
+
+function openSyncModal() {
+  uiState.pendingImport = null;
+  document.getElementById('inp-import-file').value = '';
+  document.getElementById('import-confirm-box').style.display = 'none';
+  document.getElementById('admin-sync-box').style.display = db.isAdmin() ? 'block' : 'none';
+  document.getElementById('import-target-owner-wrap').style.display = db.isAdmin() ? 'block' : 'none';
+  if (db.isAdmin()) populateAdminMemberDropdowns();
+  document.getElementById('modal-sync').style.display = 'flex';
+}
+
+function closeSyncModal() {
+  document.getElementById('modal-sync').style.display = 'none';
+}
+
+function downloadBackupJSON(includeAllTeam = false) {
+  const json = db.exportJSON({ includeAllTeam });
+  const stamp = todayISO();
+  const prefix = includeAllTeam ? 'GMHouse_FullTeam_Backup_' : 'GMHouse_Personal_Backup_';
+  triggerDownload(json, `${prefix}${stamp}.json`, 'application/json');
+  showToast('📥 Đã tải xuống file Backup (.JSON)');
+}
+
+function downloadExcelCSV(scope = 'personal') {
+  const csv = db.exportCSV({ scope });
+  const stamp = todayISO();
+  triggerDownload(csv, `GMHouse_KhachHangCaNhan_${stamp}.csv`, 'text/csv;charset=utf-8;');
+  showToast('📊 Đã xuất file Excel (.CSV) cá nhân');
+}
+
+function previewImportFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      const list = Array.isArray(parsed) ? parsed : (parsed.data || []);
+      if (!Array.isArray(list)) throw new Error();
+      uiState.pendingImport = parsed;
+      document.getElementById('import-summary').textContent =
+        `Tìm thấy ${list.length} khách hàng trong file "${file.name}". Chọn phương thức nhập:`;
+      document.getElementById('import-confirm-box').style.display = 'block';
+    } catch {
+      alert('File JSON không đúng định dạng của GM-House.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+async function executeImport(mode) {
+  if (!uiState.pendingImport) return;
+  const targetOwnerUid = db.isAdmin()
+    ? document.getElementById('imp-owner-select').value
+    : db.getSafeUser().uid;
+
+  const count = await db.importBatch(uiState.pendingImport, { mode, targetOwnerUid });
+  closeSyncModal();
+  showToast(`✅ Đã nhập thành công ${count} khách hàng!`);
+  refreshUI();
+}
+
+/* ── PHÍM TẮT ── */
+window.addEventListener('keydown', e => {
+  if (!db.getSafeUser()) return;
+  const tag = (document.activeElement?.tagName || '').toLowerCase();
+  const isTyping = tag === 'input' || tag === 'textarea' || tag === 'select';
+
+  if (e.key === '/' && !isTyping) {
+    e.preventDefault();
+    document.getElementById('flt-search').focus();
+  } else if (e.altKey && (e.key === 'n' || e.key === 'N')) {
+    e.preventDefault();
+    openCustomerModal();
+  }
+});
+
+/* ── KHỞI ĐỘNG HỆ THỐNG ── */
+(async function bootstrap() {
+  initSelectOptions();
+  await db.init();
+  syncAuthScreen();
+})();
+</script>
+</body>
+</html>
